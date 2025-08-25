@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DIA GMDF JSON Builder & Approval Tracker</title>
+<style>
+body { font-family: Arial, sans-serif; background: #f9fafb; margin:0; padding:20px; color:#111827; }
+h1 { font-size: 24px; margin-bottom: 15px; color:#1e3a8a; }
+.card { background:#ffffff; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); padding:20px; margin-bottom:20px; }
+label { display:block; margin-top:10px; font-weight:bold; }
+input, select, textarea { width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:8px; }
+button { margin-top:15px; padding:10px 16px; border:none; border-radius:8px; background:#2563eb; color:white; cursor:pointer; }
+button:hover { background:#1e40af; }
+pre { background:#f3f4f6; padding:15px; border-radius:10px; white-space:pre-wrap; overflow-x:auto; }
+.table-container { max-height:300px; overflow-y:auto; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+th, td { padding:8px; text-align:left; border-bottom:1px solid #ddd; }
+th { background:#e0f2fe; }
+.search-filter { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.pagination { margin-top:10px; }
+.pagination button { background:#f3f4f6; color:#111; border:1px solid #ccc; padding:5px 10px; margin-right:5px; border-radius:5px; }
+.pagination button.active { background:#2563eb; color:white; }
+.status-badge { padding:2px 6px; border-radius:5px; color:white; font-size:12px; }
+.status-pending { background:#facc15; }
+.status-approved { background:#22c55e; }
+.status-rejected { background:#ef4444; }
+</style>
+</head>
+<body>
+<h1>DIA GMDF JSON Builder & Approval Tracker</h1>
+
+<div class="card">
+<label for="scriptType">Select Script Type</label>
+<select id="scriptType">
+  <option value="dmsRaw">DMS to RAW (bucket/key)</option>
+  <option value="recalc">Recalculation</option>
+  <option value="recalcBackup">Recalculation with Backup ID</option>
+  <option value="dmsTask">DMS Task Start/Stop</option>
+  <option value="refine">Refine Load</option>
+  <option value="conform">Conform Load</option>
+  <option value="conformTable">Conform – Table-wise load</option>
+  <option value="restore">Full Restore</option>
+  <option value="refineConform">Refine + Conform</option>
+  <option value="datamart">Datamart Load</option>
+  <option value="datamartEntity">Datamart with ETL Entity</option>
+</select>
+
+<div id="dynamicFields"></div>
+<button onclick="generateJSON()">Generate JSON</button>
+<button onclick="requestApproval()">Request Approval</button>
+</div>
+
+<div class="card">
+<h2>Generated JSON</h2>
+<pre id="output"></pre>
+</div>
+
+<div class="card">
+<h2>Approval Requests</h2>
+<div class="search-filter">
+<input type="text" id="searchInput" placeholder="Search Chain Name/Source ID/Mode">
+<input type="date" id="filterDate">
+</div>
+<div class="table-container">
+<table id="approvalTable">
+<thead>
+<tr>
+<th>Request ID</th>
+<th>Requestor</th>
+<th>Approver</th>
+<th>Chain Name</th>
+<th>Source ID</th>
+<th>Mode</th>
+<th>Date/Time</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+<div class="pagination" id="pagination"></div>
+</div>
+
+<script>
+const dynamicFields = document.getElementById('dynamicFields');
+const output = document.getElementById('output');
+const approvalTableBody = document.querySelector('#approvalTable tbody');
+const searchInput = document.getElementById('searchInput');
+const filterDate = document.getElementById('filterDate');
+let approvals=[];
+let currentPage=1;
+const pageSize=10;
+
+document.getElementById('scriptType').addEventListener('change', renderFields);
+renderFields();
+
+function renderFields(){
+  const type=document.getElementById('scriptType').value;
+  dynamicFields.innerHTML='';
+  const addField=(label,id,multiline=false)=>{
+    const lab=document.createElement('label'); lab.innerText=label;
+    const inp=multiline?document.createElement('textarea'):document.createElement('input');
+    inp.id=id; dynamicFields.appendChild(lab); dynamicFields.appendChild(inp);
+  }
+
+  if(type==='dmsRaw'){addField('Bucket Name','bucket');addField('Key Path(s) comma separated','key',true);}
+  if(type==='recalc'){addField('Chain Name','chain');addField('Source ID','src');addField('Table Name','table');}
+  if(type==='recalcBackup'){addField('Chain Name','chain');addField('Source ID','src');addField('Tables with backup_load_id(JSON array)','tables',true);}
+  if(type==='dmsTask'){addField('Action(start/stop)','action');addField('Task IDs comma separated','tasks',true);}
+  if(type==='refine'){addField('Chain Name','chain');addField('Source ID','src');addField('Tables comma separated','tables',true);addField('Mode(full/delta)','mode');}
+  if(type==='conform'){addField('Chain Name','chain');addField('Parent ETL Job','parent');addField('Source ID','src');addField('Mode(full/delta)','mode');}
+  if(type==='conformTable'){addField('Chain Name','chain');addField('Parent ETL Job','parent');addField('Source ID','src');addField('Tables comma separated','tables',true);}
+  if(type==='restore'){addField('Chain Name','chain');addField('Source ID','src');addField('DMS Task(s) comma separated','tasks',true);addField('Step (1 or 2)','step');}
+  if(type==='refineConform'){addField('Chain Name','chain');addField('Source ID','src');addField('Parent ETL Job (Conform)','parent');addField('Mode(full/delta)','mode');}
+  if(type==='datamart'){addField('Chain Name','chain');addField('Parent ETL Job','parent');addField('Application Code','app');addField('Mode(full/delta)','mode');}
+  if(type==='datamartEntity'){addField('Chain Name','chain');addField('Parent ETL Job','parent');addField('Application Code','app');addField('ETL Entities comma separated','entities',true);addField('Mode(full/delta)','mode');}
+}
+
+function generateJSON(){
+  const type=document.getElementById('scriptType').value;
+  let obj={};
+  try{
+    if(type==='dmsRaw'){obj={bucketName:document.getElementById('bucket').value,key:document.getElementById('key').value.split(',').map(x=>x.trim())};}
+    if(type==='recalc'){obj={launch:'manual',refine:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:'edb_mq_dia_golden_copy',systems:[{r_src_id:document.getElementById('src').value,tables:[{table_name:document.getElementById('table').value}]}],mode:'recalculation',n_workers:40,free_threads:true}]}]}};}
+    if(type==='recalcBackup'){obj={launch:'manual',refine:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:'edb_mq_dia_golden_copy',systems:[{r_src_id:document.getElementById('src').value,tables:JSON.parse(document.getElementById('tables').value)}],mode:'recalculation',n_workers:40,free_threads:true}]}]}};}
+    if(type==='dmsTask'){const action=document.getElementById('action').value;obj={dms:{action:action,dms_object:'task',mode:'default',...(action==='start'?{start_type:'resume'}:{}),input_list:document.getElementById('tasks').value.split(',').map(x=>x.trim())}};}
+    if(type==='refine'){obj={launch:'manual',refine:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:'edb_mq_dia_golden_copy',systems:[{r_src_id:document.getElementById('src').value,tables:document.getElementById('tables').value.split(',').map(x=>x.trim())}],mode:document.getElementById('mode').value,n_workers:10,free_threads:true}]}]}};}
+    if(type==='conform'){obj={launch:'manual',conform:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:document.getElementById('parent').value,systems:[{r_src_id:document.getElementById('src').value,dependencies:[{dependency:'edb_mq_dia_golden_copy',dep_r_src_id:document.getElementById('src').value}]}],mode:document.getElementById('mode').value,n_workers:40,free_threads:true}]}]}};}
+    if(type==='conformTable'){obj={launch:'manual',conform:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,parent_etl_job:document.getElementById('parent').value,systems:[{r_src_id:document.getElementById('src').value,tables:document.getElementById('tables').value.split(',').map(x=>x.trim())}],mode:'full_restore',n_workers:40,free_threads:true}]}]}};}
+    if(type==='restore'){obj={launch:'manual',refine:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:false,parent_etl_job:'edb_mq_dia_golden_copy',systems:[{r_src_id:document.getElementById('src').value,dms_tasks:document.getElementById('tasks').value.split(',').map(x=>x.trim())}],mode:'full_restore',step:document.getElementById('step').value,n_workers:10,free_threads:true}]}]}};}
+    if(type==='refineConform'){obj={launch:'batch',refine:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:'edb_mq_dia_golden_copy',systems:[{r_src_id:document.getElementById('src').value,dependencies:[]}],mode:document.getElementById('mode').value,n_workers:40,free_threads:true}]}]},conform:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:document.getElementById('parent').value,systems:[{r_src_id:document.getElementById('src').value,dependencies:[{dependency:'edb_mq_dia_golden_copy',dep_r_src_id:document.getElementById('src').value}]}],mode:document.getElementById('mode').value,n_workers:40,free_threads:true}]}]}};}
+    if(type==='datamart'){obj={launch:'manual',datamart:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:document.getElementById('parent').value,systems:[{applctn_cd:document.getElementById('app').value}],mode:document.getElementById('mode').value,n_workers:10,free_threads:true}]}]}};}
+    if(type==='datamartEntity'){obj={launch:'manual',datamart:{sequential_jobs:[{parallel_jobs:[{chain_name:document.getElementById('chain').value,check_dependency:true,parent_etl_job:document.getElementById('parent').value,systems:[{applctn_cd:document.getElementById('app').value,etl_entity:document.getElementById('entities').value.split(',').map(x=>x.trim()),dependencies:[]}],mode:document.getElementById('mode').value,n_workers:40,free_threads:true}]}]}};}
+  }catch(e){alert('Invalid input for JSON');return;}
+  output.innerText=JSON.stringify(obj,null,2);
+  return obj;
+}
+
+function requestApproval(){
+  const obj=generateJSON();
+  const requestor=prompt('Enter your name/email:');
+  const approver=prompt('Enter approver name/email:');
+  const date=new Date();
+  const reqId='REQ-'+Math.floor(Math.random()*1000000);
+  approvals.push({id:reqId,requestor,approver,chain:obj.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name || obj.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name || '',src:obj.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.systems?.[0]?.r_src_id || obj.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.systems?.[0]?.r_src_id || '',mode:obj.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode || obj.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode || obj.datamart?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode || '',date:date,status:'Pending'});
+  renderTable();
+}
+
+function renderTable(){
+  let filtered=approvals.filter(a=>{
+    const search=searchInput.value.toLowerCase();
+    const dateFilter=filterDate.value;
+    const matchesSearch=a.chain.toLowerCase().includes(search)||a.src.toLowerCase().includes(search)||a.mode.toLowerCase().includes(search);
+    const matchesDate=dateFilter?new Date(a.date).toISOString().split('T')[0]===dateFilter:true;
+    return matchesSearch && matchesDate;
+  });
+  const totalPages=Math.ceil(filtered.length/pageSize);
+  if(currentPage>totalPages) currentPage=1;
+  const start=(currentPage-1)*pageSize;
+  const end=start+pageSize;
+  const pageData=filtered.slice(start,end);
+  approvalTableBody.innerHTML='';
+  pageData.forEach(a=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${a.id}</td>
+      <td>${a.requestor}</td>
+      <td>${a.approver}</td>
+      <td>${a.chain}</td>
+      <td>${a.src}</td>
+      <td>${a.mode}</td>
+      <td>${a.date.toLocaleString()}</td>
+      <td><span class="status-badge status-${a.status.toLowerCase()}">${a.status}</span></td>
+      <td><button onclick="approve('${a.id}')">Approve</button></td>
+    `;
+    approvalTableBody.appendChild(tr);
+  });
+  const paginationDiv=document.getElementById('pagination');
+  paginationDiv.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    const btn=document.createElement('button');
+    btn.innerText=i; if(i===currentPage) btn.classList.add('active');
+    btn.onclick=()=>{currentPage=i; renderTable();};
+    paginationDiv.appendChild(btn);
+  }
+}
+
+function approve(id){
+  const app=approvals.find(a=>a.id===id);
+  if(app){app.status='Approved'; renderTable(); alert(`Request ${id} approved!`);}
+}
+
+searchInput.addEventListener('input',renderTable);
+filterDate.addEventListener('change',renderTable);
+</script>
+</body>
+</html>
