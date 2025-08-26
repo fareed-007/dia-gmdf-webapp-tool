@@ -146,21 +146,32 @@ let currentPage=1; const pageSize=8;
 function na(v){ return (v===undefined||v===null||v==='')? 'NA' : v; }
 function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(approvals)); localStorage.setItem(RESET_KEY, localStorage.getItem(RESET_KEY) || new Date().toISOString()); }
 
-// auto-export & reset if older than RESET_DAYS
-(function autoExportReset(){
+// auto-save & reset if older than RESET_DAYS
+(function autoSaveReset() {
   const last = localStorage.getItem(RESET_KEY);
-  if(!last){ localStorage.setItem(RESET_KEY, new Date().toISOString()); return; }
-  const lastDate = new Date(last); const diffDays = (Date.now()-lastDate.getTime())/(1000*60*60*24);
-  if(diffDays >= RESET_DAYS && approvals.length>0){
-    // create CSV (removed Workers and Tasks columns per request)
-    const rows = [['Req ID','Requestor','Approver','Chain','Src','Mode','Step','Ticket','Reason','Requested Time','Approval Time','Status']];
-    approvals.forEach(a=> rows.push([a.id,a.requestor,a.approver,a.chain,a.src,a.mode,a.step||'NA', a.ticket, a.reason, new Date(a.requestedTime).toLocaleString(), a.approvalTime?new Date(a.approvalTime).toLocaleString():'', a.status]));
-    const csv = rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
-    const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download = 'approvals_export_'+lastDate.toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    // reset
-    approvals=[]; save();
+  if (!last) {
     localStorage.setItem(RESET_KEY, new Date().toISOString());
+    return;
+  }
+  const lastDate = new Date(last);
+  const diffDays = (Date.now() - lastDate.getTime()) / (1000 * 60 * 60 * 24);
+
+  if (diffDays >= RESET_DAYS && approvals.length > 0) {
+    // Save approvals to approvals.json (for GitHub Actions)
+    const jsonBlob = new Blob([JSON.stringify(approvals, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(jsonBlob);
+    a.download = 'approvals.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a);
+
+    // Reset approvals in localStorage
+    approvals = [];
+    save();
+    localStorage.setItem(RESET_KEY, new Date().toISOString());
+    alert('Approvals have been exported to approvals.json and reset.');
   }
 })();
 
@@ -296,3 +307,4 @@ renderTable();
 </script>
 </body>
 </html>
+
