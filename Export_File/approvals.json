@@ -1,1 +1,18 @@
-[]
+[
+  {
+    "id": "REQ-000001",
+    "requestor": "alice",
+    "approver": "bob",
+    "chain": "ref_test",
+    "src": "1",
+    "mode": "full",
+    "workers": "10",
+    "dms_tasks": [],
+    "step": "NA",
+    "ticket": "TICKET-1",
+    "reason": "test",
+    "requestedTime": "2025-08-26T00:00:00Z",
+    "approvalTime": null,
+    "status": "Pending"
+  }
+]
