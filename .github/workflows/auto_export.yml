@@ -2,8 +2,8 @@ name: Auto Export CSV
 
 on:
   schedule:
-    - cron: '0 0 */90 * *'  # every 90 days
-  workflow_dispatch:         # allows manual trigger
+    - cron: '0 0 */90 * *'
+  workflow_dispatch:
 
 jobs:
   export_csv:
@@ -12,32 +12,7 @@ jobs:
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v3
-      with:
-        persist-credentials: false  # Important to use PAT for push
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-
-    - name: Ensure Export_Data folder exists
-      run: mkdir -p Export_Data
-
-    - name: Fetch CSV from App
-      env:
-        APP_TOKEN: ${{ secrets.APP_TOKEN }}
+    - name: Export CSV
       run: |
-        # Replace URL with a real API endpoint returning CSV
-        curl -H "Authorization: token $APP_TOKEN" \
-        -o Export_Data/approvals_$(date +%F).csv \
-        https://YOUR_HOSTED_APP_URL/auto_export_csv
-
-    - name: Commit & Push CSV
-      env:
-        PAT: ${{ secrets.APP_TOKEN }}
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add Export_Data/
-        git diff --cached --quiet || git commit -m "Auto-export approvals CSV $(date +%F)"
-        git push https://x-access-token:$PAT@github.com/${{ github.repository }} HEAD:main
+        node scripts/export_csv.js
