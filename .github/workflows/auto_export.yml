@@ -1,33 +1,74 @@
-name: Auto Export CSV
+name: Auto Export Approvals CSV
 
+# Runs on schedule (daily safe example) and manually
 on:
-  workflow_dispatch: # Manual trigger
   schedule:
-    - cron: '0 0 */90 * *' # Every 90 days
+    - cron: '0 2 * * *'   # runs daily at 02:00 UTC (you can change this)
+  workflow_dispatch:      # allow manual runs
 
 jobs:
   export_csv:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+    - name: Checkout repository (no automatic credentials)
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false   # important: we'll use a PAT for pushes
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
 
-      - name: Fetch CSV from App
-        env:
-          APP_TOKEN: ${{ secrets.APP_TOKEN }}
-        run: |
-          mkdir -p Export_Data
-          curl -H "Authorization: token $APP_TOKEN" -o Export_Data/approvals_$(date +%F).csv https://fareed-007.github.io/dia-gmdf-webapp-tool/auto_export_csv
+    - name: Convert Export_File/approvals.json to CSV
+      env:
+        INPUT_PATH: Export_File/approvals.json
+        OUTPUT_DIR: Export_File
+      run: |
+        if [ ! -f "$INPUT_PATH" ]; then
+          echo "No approvals.json found at $INPUT_PATH - nothing to export"
+          exit 0
+        fi
 
-      - name: Commit & Push CSV
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add Export_Data/
-          git commit -m "Auto-export approvals CSV $(date +%F)" || echo "No changes to commit"
-          git push
+        node -e "
+        const fs=require('fs');
+        const p=process.env.INPUT_PATH;
+        const outDir=process.env.OUTPUT_DIR;
+        const raw = fs.readFileSync(p,'utf8');
+        let items = [];
+        try{ items = JSON.parse(raw); } catch(e){ console.error('Invalid JSON:', e); process.exit(2); }
+        const rows = [['Req ID','Requestor','Approver','Chain','Src','Mode','Step','Ticket','Reason','Requested Time','Approval Time','Status']];
+        items.forEach(a=>{
+          rows.push([
+            a.id||'',
+            a.requestor||'',
+            a.approver||'',
+            a.chain||'',
+            a.src||'',
+            a.mode||'',
+            a.step||'',
+            a.ticket||'',
+            a.reason||'',
+            a.requestedTime||'',
+            a.approvalTime||'',
+            a.status||''
+          ]);
+        });
+        const csv = rows.map(r => r.map(c => '\"'+String(c).replace(/\"/g,'\"\"')+'\"').join(',')).join('\\n');
+        const fileName = outDir + '/approvals_' + new Date().toISOString().slice(0,10) + '.csv';
+        fs.mkdirSync(outDir, { recursive: true });
+        fs.writeFileSync(fileName, csv, 'utf8');
+        console.log('Created', fileName);
+        "
+
+    - name: Commit & Push CSV using PAT
+      env:
+        REPO_PAT: ${{ secrets.APP_TOKEN }}   # you will create this secret
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add Export_File/*.csv || true
+        git commit -m "Auto-export approvals CSV $(date -I)" || echo "No changes to commit"
+        # push using PAT (persist-credentials was false so we must use PAT)
+        git push https://${APP_TOKEN}@github.com/${{ github.repository }} HEAD:main
