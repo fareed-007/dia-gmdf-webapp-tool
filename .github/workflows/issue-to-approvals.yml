@@ -1,0 +1,66 @@
+name: Import approval from Issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'from-webapp')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Extract JSON block from issue body
+        id: extract
+        run: |
+          BODY="${{ github.event.issue.body }}"
+          # Extract between ```json and ```
+          JSON_BLOCK=$(printf "%s" "$BODY" | sed -n '/```json/,/```/p' | sed '1d;$d')
+          if [ -z "$JSON_BLOCK" ]; then
+            echo "No JSON block found; trying generic ``` ... ```"
+            JSON_BLOCK=$(printf "%s" "$BODY" | sed -n '/```/,/```/p' | sed '1d;$d')
+          fi
+          if [ -z "$JSON_BLOCK" ]; then
+            echo "json_block=" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+          # print to output
+          echo "json_block<<EOF" >> $GITHUB_OUTPUT
+          echo "$JSON_BLOCK" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update approvals.json
+        env:
+          FILE_PATH: Export_File/approvals.json
+        run: |
+          if [ -z "${{ steps.extract.outputs.json_block }}" ]; then
+            echo "No json block extracted. Exiting."
+            exit 1
+          fi
+          echo "${{ steps.extract.outputs.json_block }}" > /tmp/rec.json
+          # ensure the file exists
+          if [ ! -f "$FILE_PATH" ]; then
+            echo "[]" > "$FILE_PATH"
+          fi
+          # read record id to check
+          REC_ID=$(jq -r '.id // empty' /tmp/rec.json)
+          if [ -z "$REC_ID" ]; then
+            echo "Record does not contain 'id' field. Aborting."
+            exit 1
+          fi
+          # create new array: put record first, then all other records that don't have same id
+          TMPFILE=$(mktemp)
+          jq --argfile rec /tmp/rec.json '[$rec] + ( (.[ ] ) | map(select(.id != $rec.id)) )' "$FILE_PATH" > "$TMPFILE"
+          mv "$TMPFILE" "$FILE_PATH"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$FILE_PATH"
+          git commit -m "Import/update approval ${REC_ID} from issue #${{ github.event.issue.number }}" || echo "No changes to commit"
+          git push
