@@ -1,0 +1,26 @@
+name: Auto Export Approvals CSV
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '0 0 * * *'  # daily at midnight UTC
+
+jobs:
+  export_csv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Fetch CSV from App
+        run: |
+          curl -H "Authorization: Bearer ${{ secrets.APP_TOKEN }}" \
+          -o Export_Data/approvals_export_$(date +%F).csv https://YOUR_APP_URL/auto_export_csv
+
+      - name: Commit CSV
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Export_Data/*.csv
+          git commit -m "Auto-export approvals CSV $(date +%F)" || echo "No changes to commit"
+          git push
