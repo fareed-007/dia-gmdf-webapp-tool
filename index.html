@@ -139,12 +139,13 @@
   </div>
 
 <script>
+
 // Configuration - Replace with your GitHub details
         const GITHUB_OWNER = "fareed-007";      // e.g., "fareed-007"
         const GITHUB_REPO = "dia-gmdf-webapp-tool";             // e.g., "dia-gmdf-webapp-tool"
         const FILE_PATH = "requests.json";                // path to the JSON file
-        const GITHUB_TOKEN = "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";                 // your GitHub Personal Access Token
-
+        const GITHUB_TOKEN = "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";                 // your GitHub Personal Access Token
+		
 // helpers and persistence keys
 const byId=id=>document.getElementById(id);
 const STORAGE_KEY='dia_approvals_v1';
@@ -305,6 +306,123 @@ byId('workers_global').addEventListener('change', ()=>{ const w = byId('workers_
 // initial render and persistence load
 renderTable();
 </script>
+
+<script>
+// GitHub API Configuration
+const GITHUB_OWNER = "your-github-username";      // Replace with your GitHub username
+const GITHUB_REPO = "your-repo-name";             // Replace with your repository name
+const FILE_PATH = "requests.json";                // Path to the JSON file in the repo
+const GITHUB_TOKEN = "APP_TOKEN";                 // Replace with your GitHub Personal Access Token
+
+// GitHub API endpoints
+const GITHUB_API_BASE = "https://api.github.com";
+const GITHUB_CONTENT_URL = `${GITHUB_API_BASE}/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+
+// Utility to fetch current requests.json content
+async function fetchRequests() {
+    const res = await fetch(GITHUB_CONTENT_URL, {
+        headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3.raw"
+        }
+    });
+    if (!res.ok) {
+        console.error("Failed to fetch requests.json");
+        return [];
+    }
+    return await res.json();
+}
+
+// Utility to update requests.json with new data
+async function updateRequests(newData) {
+    const getRes = await fetch(GITHUB_CONTENT_URL, {
+        headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3+json"
+        }
+    });
+    const getJson = await getRes.json();
+    const sha = getJson.sha;
+
+    const updatedContent = btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2))));
+
+    const putRes = await fetch(GITHUB_CONTENT_URL, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3+json"
+        },
+        body: JSON.stringify({
+            message: "Update requests.json",
+            content: updatedContent,
+            sha: sha
+        })
+    });
+
+    return putRes.ok;
+}
+
+// Override renderTable to use GitHub data
+async function renderTable() {
+    const approvals = await fetchRequests();
+    const tbody = document.querySelector("#approvalTable tbody");
+    tbody.innerHTML = "";
+
+    approvals.forEach(a => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="smaller">${a.id}</td>
+            <td class="smaller">${a.requestor}</td>
+            <td class="smaller">${a.approver}</td>
+            <td class="smaller">${a.chain}</td>
+            <td class="smaller">${a.src}</td>
+            <td class="smaller">${a.mode}</td>
+            <td class="smaller">${a.step || "NA"}</td>
+            <td class="smaller">${a.ticket}</td>
+            <td class="smaller">${a.reason}</td>
+            <td class="smaller">${new Date(a.requestedTime).toLocaleString()}</td>
+            <td class="smaller">${a.approvalTime ? new Date(a.approvalTime).toLocaleString() : "NA"}</td>
+            <td class="smaller"><span class="status ${a.status}">${a.status}</span></td>
+            <td class="smaller">
+                <button class="pagebtn" onclick="approveRequest('${a.id}')">Approve</button>
+                <button class="pagebtn" onclick="rejectRequest('${a.id}')">Reject</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Approve request
+async function approveRequest(id) {
+    const approvals = await fetchRequests();
+    const idx = approvals.findIndex(x => x.id === id);
+    if (idx > -1) {
+        approvals[idx].status = "Approved";
+        approvals[idx].approvalTime = new Date().toISOString();
+        await updateRequests(approvals);
+        renderTable();
+        alert("Approved " + id);
+    }
+}
+
+// Reject request
+async function rejectRequest(id) {
+    const approvals = await fetchRequests();
+    const idx = approvals.findIndex(x => x.id === id);
+    if (idx > -1) {
+        const reason = prompt("Reason for rejection (optional)");
+        approvals[idx].status = "Rejected";
+        approvals[idx].approvalTime = new Date().toISOString();
+        if (reason) approvals[idx].rejectReason = reason;
+        await updateRequests(approvals);
+        renderTable();
+        alert("Rejected " + id);
+    }
+}
+
+// Initial render
+renderTable();
+</script>
+
 </body>
 </html>
-
