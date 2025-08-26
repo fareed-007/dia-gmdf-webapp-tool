@@ -1,0 +1,97 @@
+name: Import Issue -> approvals.json
+
+on:
+  issues:
+    types: [opened]
+
+# We need permissions to read/write repo contents
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  import_issue:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'from-webapp') # only run when label exists
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Import JSON from issue and update approvals.json
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Helper: extract the first ```json ... ``` block
+            function extractJsonBlock(body) {
+              if (!body) return null;
+              const re = /```json\s*([\s\S]*?)\s*```/i;
+              const m = body.match(re);
+              if (!m) return null;
+              return m[1].trim();
+            }
+
+            const issueBody = context.payload.issue.body;
+            const jsonText = extractJsonBlock(issueBody);
+            if (!jsonText) {
+              core.setFailed('No JSON code block found in issue body.');
+            } else {
+              let record;
+              try {
+                record = JSON.parse(jsonText);
+              } catch (e) {
+                core.setFailed('Invalid JSON in code block: ' + e.message);
+              }
+
+              // target file path (adjust if you used different path)
+              const filePath = 'Export_File/approvals.json';
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+              const branch = context.ref ? context.ref.replace('refs/heads/','') : 'main';
+
+              // read current file (if exists)
+              const { data: current } = await github.repos.getContent({
+                owner, repo, path: filePath, ref: branch
+              }).catch(_ => ({ data: null }));
+
+              let approvals = [];
+              let sha = null;
+              if (current && current.content) {
+                sha = current.sha;
+                const content = Buffer.from(current.content, 'base64').toString();
+                try {
+                  approvals = JSON.parse(content);
+                  if (!Array.isArray(approvals)) approvals = [];
+                } catch (e) {
+                  approvals = [];
+                }
+              }
+
+              // Insert or replace by id
+              const idx = approvals.findIndex(r => r.id === record.id);
+              if (idx === -1) {
+                approvals.unshift(record);
+              } else {
+                approvals[idx] = record;
+              }
+
+              const newContent = Buffer.from(JSON.stringify(approvals, null, 2)).toString('base64');
+
+              // commit update
+              await github.repos.createOrUpdateFileContents({
+                owner,
+                repo,
+                path: filePath,
+                message: `Import approval record ${record.id} from issue #${context.payload.issue.number}`,
+                content: newContent,
+                sha: sha || undefined,
+                branch
+              });
+
+              // Optionally add a comment on the issue indicating success
+              await github.issues.createComment({
+                owner, repo, issue_number: context.payload.issue.number,
+                body: `Imported record ${record.id} into \`${filePath}\`.`
+              });
+            }
