@@ -1,1 +1,71 @@
-[]
+name: Import Issue -> approvals.json
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  import_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Import JSON from issue
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueBody = context.payload.issue.body;
+            const labelExists = context.payload.issue.labels.some(l => l.name === 'from-webapp');
+            if (!labelExists) {
+              core.info('Skipping issue without from-webapp label.');
+              return;
+            }
+
+            // extract ```json ... ``` block
+            const match = issueBody.match(/```json\s*([\s\S]*?)```/i);
+            if (!match) throw new Error('No JSON block found in issue body');
+            const record = JSON.parse(match[1]);
+
+            const filePath = 'Export_File/approvals.json';
+            let approvals = [];
+            let sha;
+
+            try {
+              const { data } = await github.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: filePath,
+              });
+              const content = Buffer.from(data.content, 'base64').toString();
+              approvals = JSON.parse(content);
+              sha = data.sha;
+            } catch (e) {
+              approvals = [];
+            }
+
+            // replace or add record
+            const idx = approvals.findIndex(r => r.id === record.id);
+            if (idx >= 0) approvals[idx] = record;
+            else approvals.unshift(record);
+
+            // commit updated JSON
+            await github.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: filePath,
+              message: `Import record ${record.id} from issue #${context.payload.issue.number}`,
+              content: Buffer.from(JSON.stringify(approvals, null, 2)).toString('base64'),
+              sha,
+            });
+
+            await github.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number,
+              body: `Record ${record.id} imported successfully.`,
+            });
