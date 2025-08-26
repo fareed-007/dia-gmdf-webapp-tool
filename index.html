@@ -143,8 +143,8 @@
         const GITHUB_OWNER = "fareed-007";      // e.g., "fareed-007"
         const GITHUB_REPO = "dia-gmdf-webapp-tool";             // e.g., "dia-gmdf-webapp-tool"
         const FILE_PATH = "Export_Data/requests.json";                // path to the JSON file
-        const GITHUB_TOKEN = "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";  
-
+        const GITHUB_TOKEN = "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";
+		
 // helpers and persistence keys
 const byId=id=>document.getElementById(id);
 const STORAGE_KEY='dia_approvals_v1';
@@ -308,10 +308,10 @@ renderTable();
 
 <script>
 // === GitHub Configuration ===
-const GITHUB_OWNER = "your-github-username";      // Replace with your GitHub username
-const GITHUB_REPO = "your-repo-name";             // Replace with your GitHub repository name
-const FILE_PATH = "requests.json";                // Path to the JSON file in the repo
-const GITHUB_TOKEN = "APP_TOKEN";                 // Replace with your GitHub Personal Access Token
+const GITHUB_OWNER = "your-github-username"; // Replace with your GitHub username
+const GITHUB_REPO = "dia-gmdf-webapp-tool"; // Replace with your repository name
+const FILE_PATH = "Export_Data/requests.json"; // Path to the JSON file in the repo
+const GITHUB_TOKEN = "APP_TOKEN"; // Replace with your GitHub token
 
 let fileSha = "";
 
@@ -327,7 +327,9 @@ async function loadRequestsFromGitHub() {
     });
     const text = await res.text();
     const requests = JSON.parse(text);
-    displayRequests(requests);
+    approvals = requests;
+    save();
+    renderTable();
 
     const meta = await fetch(url, {
       headers: {
@@ -338,106 +340,44 @@ async function loadRequestsFromGitHub() {
     const metaJson = await meta.json();
     fileSha = metaJson.sha;
   } catch (err) {
-    console.error("Failed to load requests:", err);
+    console.error("Failed to load requests from GitHub:", err);
   }
 }
 
-// Display requests in the table
-function displayRequests(requests) {
-  const tbody = document.querySelector("#approvalTable tbody");
-  if (!tbody) return;
-  tbody.innerHTML = "";
-  requests.forEach((req, i) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${req.id}</td>
-      <td>${req.requestor}</td>
-      <td>${req.approver}</td>
-      <td>${req.chain}</td>
-      <td>${req.src}</td>
-      <td>${req.mode}</td>
-      <td>${req.step || "NA"}</td>
-      <td>${req.ticket}</td>
-      <td>${req.reason}</td>
-      <td>${new Date(req.requestedTime).toLocaleString()}</td>
-      <td>${req.approvalTime ? new Date(req.approvalTime).toLocaleString() : "NA"}</td>
-      <td><span class="status ${req.status}">${req.status}</span></td>
-      <td>
-        ${req.status === "Pending" ? `
-          <button onclick="updateStatus(${i}, 'Approved')">Approve</button>
-          <button onclick="updateStatus(${i}, 'Rejected')">Reject</button>
-        ` : ""}
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-
-// Submit request to GitHub
-async function submitRequestToGitHub(record) {
+// Save requests to GitHub
+async function saveRequestsToGitHub() {
   const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+  const content = btoa(JSON.stringify(approvals, null, 2));
   try {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.v3.raw"
-      }
-    });
-    const text = await res.text();
-    const requests = JSON.parse(text);
-    requests.unshift(record);
-
-    const content = btoa(JSON.stringify(requests, null, 2));
     await fetch(url, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${GITHUB_TOKEN}`,
         Accept: "application/vnd.github.v3+json"
       },
-      body: JSON.stringify({ message: "Add request", content, sha: fileSha })
+      body: JSON.stringify({
+        message: "Update requests.json",
+        content: content,
+        sha: fileSha
+      })
     });
-    loadRequestsFromGitHub();
   } catch (err) {
-    console.error("Failed to submit request:", err);
-    alert("Failed to submit request.");
+    console.error("Failed to save requests to GitHub:", err);
   }
 }
 
-// Update status
-async function updateStatus(index, status) {
-  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
-  try {
-    const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.v3.raw"
-      }
-    });
-    const text = await res.text();
-    const requests = JSON.parse(text);
-    requests[index].status = status;
-    requests[index].approvalTime = new Date().toISOString();
-
-    const content = btoa(JSON.stringify(requests, null, 2));
-    await fetch(url, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: "application/vnd.github.v3+json"
-      },
-      body: JSON.stringify({ message: `Update status to ${status}`, content, sha: fileSha })
-    });
-    loadRequestsFromGitHub();
-  } catch (err) {
-    console.error("Failed to update status:", err);
-    alert("Failed to update status.");
-  }
+// Override save function to include GitHub sync
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(approvals));
+  localStorage.setItem(RESET_KEY, localStorage.getItem(RESET_KEY) || new Date().toISOString());
+  saveRequestsToGitHub();
 }
 
-window.addEventListener("load", loadRequestsFromGitHub);
+// Load requests from GitHub on page load
+window.addEventListener("load", () => {
+  loadRequestsFromGitHub();
+});
 </script>
 
 </body>
 </html>
-
-
