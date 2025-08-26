@@ -5,42 +5,43 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>DIA GMDF JSON Builder & Approval Tracker</title>
 <style>
-  :root{--bg:#f7fbff;--card:#ffffff;--muted:#475569;--accent:#0ea5e9;--accent-2:#60a5fa;--border:#e6eef8;--ok:#16a34a;--danger:#ef4444;}
-  body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:22px;color:#0f172a;}
-  .wrap{max-width:1200px;margin:0 auto}
-  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-  h1{font-size:20px;margin:0;color:#0b1220}
-  .subtitle{color:var(--muted);font-size:13px}
-  .grid{display:grid;gap:16px}
-  .cols-2{grid-template-columns:1fr 440px}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(6,30,63,0.04)}
-  label{display:block;font-weight:600;font-size:13px;color:#0b1220;margin-bottom:6px}
-  input[type="text"], input[type="number"], select, textarea{width:100%;padding:8px;border:1px solid #dbeafe;border-radius:8px;font-size:13px;color:#0b1220;background:#fff}
-  textarea{min-height:80px;font-family:monospace}
-  .row{display:flex;gap:8px;align-items:center}
-  .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
-  .btn.ghost{background:#fff;border:1px solid var(--border);color:#0b1220}
-  .muted{color:var(--muted);font-size:13px}
-  pre.output{background:#0b1220;color:#d6e0ff;padding:12px;border-radius:10px;min-height:160px;overflow:auto;font-size:12px}
-  .small{font-size:12px;color:var(--muted)}
-  .filters{display:flex;gap:8px;align-items:center}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  th,td{padding:8px;border-bottom:1px solid #eef6fc;text-align:left}
-  th{background:#ecfeff;font-weight:700;font-size:12px}
-  .status{padding:4px 8px;border-radius:999px;color:#fff;font-size:11px}
-  .status.Pending{background:#f59e0b}
-  .status.Approved{background:var(--ok)}
-  .status.Rejected{background:#ef4444}
-  .pagination{display:flex;gap:6px;align-items:center;margin-top:8px}
-  .pagebtn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer}
-  .smaller{font-size:11px;color:#334155}
-  .info{color:var(--accent-2);margin-left:6px;cursor:help}
-  .required{color:#ef4444;margin-left:6px;font-weight:700}
-  .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
-  .modal{background:#fff;padding:18px;border-radius:10px;width:520px;box-shadow:0 18px 40px rgba(2,6,23,0.3)}
-  .row-between{display:flex;justify-content:space-between;align-items:center}
-  .note{background:#f0f9ff;border:1px solid #e0f2fe;padding:8px;border-radius:8px;font-size:12px;color:#034f84}
-  .inline{display:inline-block;margin-right:8px}
+:root{--bg:#f7fbff;--card:#ffffff;--muted:#475569;--accent:#0ea5e9;--accent-2:#60a5fa;--border:#e6eef8;--ok:#16a34a;--danger:#ef4444;}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:22px;color:#0f172a;}
+.wrap{max-width:1200px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+h1{font-size:20px;margin:0;color:#0b1220}
+.subtitle{color:var(--muted);font-size:13px}
+.grid{display:grid;gap:16px}
+.cols-2{grid-template-columns:1fr 440px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(6,30,63,0.04)}
+label{display:block;font-weight:600;font-size:13px;color:#0b1220;margin-bottom:6px}
+input[type="text"], input[type="number"], select, textarea{width:100%;padding:8px;border:1px solid #dbeafe;border-radius:8px;font-size:13px;color:#0b1220;background:#fff}
+textarea{min-height:80px;font-family:monospace}
+.row{display:flex;gap:8px;align-items:center}
+.btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+.btn.ghost{background:#fff;border:1px solid var(--border);color:#0b1220}
+.muted{color:var(--muted);font-size:13px}
+pre.output{background:#0b1220;color:#d6e0ff;padding:12px;border-radius:10px;min-height:160px;overflow:auto;font-size:12px}
+.small{font-size:12px;color:var(--muted)}
+.filters{display:flex;gap:8px;align-items:center}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px;border-bottom:1px solid #eef6fc;text-align:left}
+th{background:#ecfeff;font-weight:700;font-size:12px}
+.status{padding:4px 8px;border-radius:999px;color:#fff;font-size:11px}
+.status.Pending{background:#f59e0b}
+.status.Approved{background:var(--ok)}
+.status.Rejected{background:var(--danger)}
+.pagination{display:flex;gap:6px;align-items:center;margin-top:8px}
+.pagebtn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer}
+.smaller{font-size:11px;color:#334155}
+.info{color:var(--accent-2);margin-left:6px;cursor:help}
+.required{color:#ef4444;margin-left:6px;font-weight:700}
+/* modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
+.modal{background:#fff;padding:18px;border-radius:10px;width:520px;box-shadow:0 18px 40px rgba(2,6,23,0.3)}
+.row-between{display:flex;justify-content:space-between;align-items:center}
+.note{background:#f0f9ff;border:1px solid #e0f2fe;padding:8px;border-radius:8px;font-size:12px;color:#034f84}
+.inline{display:inline-block;margin-right:8px}
 </style>
 </head>
 <body>
@@ -71,12 +72,16 @@
         <option value="datamart">Datamart Load</option>
         <option value="datamartEntity">Datamart with ETL Entity</option>
       </select>
+
       <div id="dynamicFields" style="margin-top:12px"></div>
+
       <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
         <button class="btn" id="genBtn">Generate JSON</button>
         <button class="btn ghost" id="copyBtn">Copy JSON</button>
         <button class="btn ghost" id="reqBtn">Request Approval</button>
-        <div style="margin-left:auto" class="small muted">Workers: <input id="workers_global" type="number" min="1" value="10" style="width:80px;margin-left:8px;padding:6px;border-radius:6px;border:1px solid #dbeafe"/></div>
+        <div style="margin-left:auto" class="small muted">Workers: 
+          <input id="workers_global" type="number" min="1" value="10" style="width:80px;margin-left:8px;padding:6px;border-radius:6px;border:1px solid #dbeafe"/>
+        </div>
       </div>
       <div style="margin-top:10px" class="note small muted">Fields marked <span class="required">*</span> are mandatory. Missing values are stored/displayed as <strong>NA</strong>.</div>
     </div>
@@ -101,13 +106,20 @@
       <div class="filters">
         <input id="searchInput" type="text" placeholder="Search Chain/Source/Mode/Ticket" style="padding:8px;border-radius:8px;border:1px solid #e6eef8;width:360px"/>
         <input id="filterDate" type="date" style="padding:8px;border-radius:8px;border:1px solid #e6eef8"/>
-        <select id="statusFilter" style="padding:8px;border-radius:8px;border:1px solid #e6eef8"><option value="">All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option></select>
+        <select id="statusFilter" style="padding:8px;border-radius:8px;border:1px solid #e6eef8">
+          <option value="">All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option>
+        </select>
       </div>
     </div>
+
     <div style="height:10px"></div>
     <div class="table-container">
       <table id="approvalTable">
-        <thead><tr><th>Req ID</th><th>Requestor</th><th>Approver</th><th>Chain</th><th>Src ID</th><th>Mode</th><th>Step</th><th>Ticket</th><th>Reason</th><th>Requested Time</th><th>Approval Time</th><th>Status</th><th>Action</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Req ID</th><th>Requestor</th><th>Approver</th><th>Chain</th><th>Src ID</th><th>Mode</th><th>Step</th><th>Ticket</th><th>Reason</th><th>Requested Time</th><th>Approval Time</th><th>Status</th><th>Action</th>
+          </tr>
+        </thead>
         <tbody></tbody>
       </table>
     </div>
@@ -115,7 +127,7 @@
   </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal for Request Approval -->
 <div id="modalBackdrop" class="modal-backdrop">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="row-between"><strong>Request Approval</strong><button id="closeModal" class="btn ghost">Close</button></div>
@@ -134,207 +146,142 @@
 </div>
 
 <script>
-// helpers and persistence keys
-const byId = id => document.getElementById(id);
-const RESET_DAYS = 90; // auto-export/reset
-const PAGE_SIZE = 8;
+// ---- Persistence & helpers ----
+const byId=id=>document.getElementById(id);
+const STORAGE_KEY='dia_approvals_v1';
+const RESET_KEY='dia_approvals_last_reset_v1';
+const RESET_DAYS=90;
+let approvals = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')||[];
+let currentPage=1; const pageSize=8;
+function na(v){ return (v===undefined||v===null||v==='')? 'NA' : v; }
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(approvals)); localStorage.setItem(RESET_KEY, localStorage.getItem(RESET_KEY) || new Date().toISOString()); }
 
-let approvals = [];
-let currentPage = 1;
-
-// GitHub repo info
-const REPO_OWNER = "fareed-007";
-const REPO_NAME = "dia-gmdf-webapp-tool";
-const FILE_PATH = "Export_Data/approvals.json";
-const BRANCH = "main";
-const TOKEN = "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"; // replace with your PAT stored in secret for testing
-
-// helper functions
-function na(v) { return v === undefined || v === null || v === '' ? 'NA' : v; }
-
-// fetch approvals.json from GitHub
-async function loadApprovals() {
-  try {
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`;
-    const res = await fetch(url, {
-      headers: { Authorization: `token ${TOKEN}` }
-    });
-    if (!res.ok) throw new Error('Failed to fetch approvals.json');
-    const data = await res.json();
-    approvals = JSON.parse(atob(data.content));
-    renderTable();
-  } catch (err) {
-    console.log('Could not load approvals.json, starting empty:', err.message);
-    approvals = [];
+(function autoExportReset(){
+  const last = localStorage.getItem(RESET_KEY);
+  if(!last){ localStorage.setItem(RESET_KEY,new Date().toISOString()); return; }
+  const diffDays = (Date.now()-new Date(last).getTime())/(1000*60*60*24);
+  if(diffDays >= RESET_DAYS && approvals.length>0){
+    const rows=[['Req ID','Requestor','Approver','Chain','Src','Mode','Step','Ticket','Reason','Requested Time','Approval Time','Status']];
+    approvals.forEach(a=>rows.push([a.id,a.requestor,a.approver,a.chain,a.src,a.mode,a.step||'NA',a.ticket,a.reason,new Date(a.requestedTime).toLocaleString(),a.approvalTime?new Date(a.approvalTime).toLocaleString():'',a.status]));
+    const blob = new Blob([rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n')],{type:'text/csv'});
+    const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='approvals_export_'+new Date(last).toISOString().slice(0,10)+'.csv'; a.click(); URL.revokeObjectURL(url);
+    approvals=[]; save(); localStorage.setItem(RESET_KEY,new Date().toISOString());
   }
+})();
+
+// ---- Dynamic Fields ----
+function addField(label,id,multi=false,opts){
+  const container=byId('dynamicFields'); const wrap=document.createElement('div'); wrap.style.marginBottom='8px';
+  const lab=document.createElement('label'); lab.textContent=label+(opts?.required?' ':''); if(opts?.required){ const star=document.createElement('span'); star.className='required'; star.textContent='*'; lab.appendChild(star); } lab.htmlFor=id; wrap.appendChild(lab);
+  let field;
+  if(multi){ field=document.createElement('textarea'); }
+  else if(opts?.type==='select'){ field=document.createElement('select'); opts.choices.forEach(ch=>{const o=document.createElement('option');o.value=ch;o.textContent=ch;field.appendChild(o);}); }
+  else{ field=document.createElement('input'); field.type=opts?.inputType||'text'; }
+  field.id=id; wrap.appendChild(field); container.appendChild(wrap);
+  if(opts?.info){ const info=document.createElement('span'); info.className='info'; info.textContent=' ℹ️'; info.title=opts.info; lab.appendChild(info); }
+  return field;
 }
 
-// push updated approvals.json to GitHub
-async function updateApprovalsJSON() {
-  try {
-    const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-    const getRes = await fetch(url, { headers: { Authorization: `token ${TOKEN}` } });
-    const getData = await getRes.json();
-    const sha = getData.sha;
+function renderFields(){
+  const type=byId('scriptType').value; const c=byId('dynamicFields'); c.innerHTML='';
+  const modeChoices=['delta','full','full_restore','recalculation'];
+  if(type==='dmsRaw'){ addField('Bucket Name','bucket'); addField('Key paths (comma separated)','key',true); }
+  else if(type==='recalc'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Table Name','table'); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='recalcBackup'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Tables with backup_load_id (JSON array)','tables',true,{info:'{\n  "table_name": "<TABLE_NAME>",\n  "backup_load_id": "jr_<loadid>"\n}'}); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='dmsTask'){ addField('Action (start/stop)','action',false,{required:true}); addField('Task Names (comma separated)','tasks',true,{required:true,info:'Provide DMS task names comma separated'}); }
+  else if(type==='refine'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Tables (comma separated)','tables',true); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='conform'){ addField('Chain Name','chain',false,{required:true}); addField('Parent ETL Job','parent'); addField('Source ID','src',false,{required:true}); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='conformTable'){ addField('Chain Name','chain',false,{required:true}); addField('Parent ETL Job','parent'); addField('Source ID','src',false,{required:true}); addField('Tables (comma separated)','tables',true); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='restore'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('DMS Task(s) (comma separated)','tasks',true,{required:true}); addField('Step (1 or 2)','step',false,{type:'select',choices:['1','2'],required:true}); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='refineConform'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Parent ETL Job (Conform)','parent'); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='datamart'){ addField('Chain Name','chain',false,{required:true}); addField('Parent ETL Job','parent'); addField('Application Code','app'); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='datamartEntity'){ addField('Chain Name','chain',false,{required:true}); addField('Parent ETL Job','parent'); addField('Application Code','app'); addField('ETL Entities (comma separated)','entities',true); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+}
+byId('scriptType').addEventListener('change', renderFields); renderFields();
 
-    const body = {
-      message: `Update approvals ${new Date().toISOString()}`,
-      content: btoa(JSON.stringify(approvals, null, 2)),
-      sha: sha,
-      branch: BRANCH
-    };
+// ---- Build Payload ----
+function buildPayload(){
+  const type=byId('scriptType').value; 
+  const w = byId('workers')?.value || byId('workers_global')?.value || 'NA';
+  try{
+    if(type==='dmsRaw'){ return { bucketName: na(byId('bucket')?.value), keys: byId('key')?.value?.split(',').map(s=>s.trim())||[] }; }
+    if(type==='recalc'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), tables:[{table_name:na(byId('table')?.value)}] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='recalcBackup'){ let tablesArr=[]; try{ tablesArr=JSON.parse(byId('tables')?.value||'[]'); }catch(e){ tablesArr=[]; } return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), tables:tablesArr }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='dmsTask'){ const action=na(byId('action')?.value); const list=byId('tasks')?.value?.split(',').map(s=>s.trim())||[]; return { dms:{ action, dms_object:'task', mode:'default', ...(action==='start'?{start_type:'resume'}:{}), input_list:list } }; }
+    if(type==='refine'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), tables:byId('tables')?.value?.split(',').map(s=>s.trim())||[] }], mode:na(byId('mode')?.value), n_workers:Number(w)||10, free_threads:true }] }] } }; }
+    if(type==='conform'){ return { launch:'manual', conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ r_src_id:na(byId('src')?.value), dependencies: [] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='conformTable'){ return { launch:'manual', conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), parent_etl_job:na(byId('parent')?.value), systems:[{ r_src_id:na(byId('src')?.value), tables:byId('tables')?.value?.split(',').map(s=>s.trim())||[] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='restore'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:false, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), dms_tasks:byId('tasks')?.value?.split(',').map(s=>s.trim())||[] }], mode:na(byId('mode')?.value), step:na(byId('step')?.value), n_workers:Number(w)||10, free_threads:true }] }] } }; }
+    if(type==='refineConform'){ return { launch:'batch', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value) }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] }, conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ r_src_id:na(byId('src')?.value), dependencies:[] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='datamart'){ return { launch:'manual', datamart:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ applctn_cd:na(byId('app')?.value) }], mode:na(byId('mode')?.value), n_workers:Number(w)||10, free_threads:true }] }] } }; }
+    if(type==='datamartEntity'){ const ent=byId('entities')?.value?.split(',').map(s=>s.trim())||[]; return { launch:'manual', datamart:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ applctn_cd:na(byId('app')?.value), etl_entity:ent, dependencies: [] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
+  }catch(e){ return { error:e.message }; }
+}
 
-    await fetch(url, {
-      method: "PUT",
-      headers: { Authorization: `token ${TOKEN}` },
-      body: JSON.stringify(body)
-    });
-  } catch (err) {
-    console.error('Failed to update approvals.json:', err);
+// ---- Generate / Copy / Download JSON ----
+byId('genBtn').addEventListener('click', ()=>{ byId('output').textContent=JSON.stringify(buildPayload(),null,2); });
+byId('copyBtn').addEventListener('click', ()=>{ const txt=byId('output').textContent; if(!txt){ alert('Nothing to copy'); return;} navigator.clipboard.writeText(txt).then(()=>alert('JSON copied to clipboard')); });
+byId('downloadBtn').addEventListener('click', ()=>{ const txt=byId('output').textContent||''; const blob=new Blob([txt],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='payload.json'; a.click(); URL.revokeObjectURL(url); });
+
+// ---- Modal ----
+const modal=byId('modalBackdrop');
+byId('reqBtn').addEventListener('click', ()=>{ modal.style.display='flex'; ['modalRequestor','modalApprover','modalTicket','modalReason'].forEach(id=>byId(id).value=''); });
+byId('closeModal').addEventListener('click', ()=>modal.style.display='none');
+byId('cancelRequest').addEventListener('click', ()=>modal.style.display='none');
+
+byId('submitRequest').addEventListener('click', ()=>{
+  const req=byId('modalRequestor').value.trim(), app=byId('modalApprover').value.trim(), ticket=byId('modalTicket').value.trim(), reason=byId('modalReason').value.trim();
+  if(!req||!app||!ticket||!reason){ alert('Please fill all required fields'); return; }
+  const type=byId('scriptType').value;
+  const chain=byId('chain')?.value||'', src=byId('src')?.value||'', mode=byId('mode')?.value||'', workers=byId('workers')?.value||byId('workers_global')?.value||'', tasksField=byId('tasks')?.value||'';
+  if(['recalc','recalcBackup','refine','conform','conformTable','restore','refineConform','datamart','datamartEntity'].includes(type)){
+    if(!chain){ alert('Chain Name is required'); return; }
+    if(!src){ alert('Source ID is required'); return; }
+    if(!mode){ alert('Mode is required'); return; }
+    if(!workers){ alert('Workers is required'); return; }
   }
-}
+  if(type==='restore' && (!tasksField || !byId('step')?.value)){ alert('DMS Task(s) and Step are required for Full Restore'); return; }
+  if(type==='dmsTask' && !tasksField){ alert('Task Names are required for DMS Task'); return; }
 
-// export CSV
-function exportCSV() {
-  if (!approvals.length) return;
-  const rows = [['Req ID','Requestor','Approver','Chain','Src','Mode','Step','Ticket','Reason','Requested Time','Approval Time','Status']];
-  approvals.forEach(a => {
-    rows.push([a.id, a.requestor, a.approver, a.chain, a.src, a.mode, a.step||'NA', a.ticket, a.reason, a.requestedTime, a.approvalTime||'', a.status]);
-  });
-  const csv = rows.map(r => r.map(c => `"${String(c??'').replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], {type: 'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `approvals_export_${new Date().toISOString().slice(0,10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-}
-
-// auto-export/reset every RESET_DAYS
-async function autoExportReset() {
-  const lastReset = localStorage.getItem('LAST_RESET') || new Date().toISOString();
-  const diffDays = (Date.now() - new Date(lastReset)) / (1000*60*60*24);
-  if (approvals.length >= 1000 || diffDays >= RESET_DAYS) {
-    exportCSV();
-    approvals = [];
-    await updateApprovalsJSON();
-    localStorage.setItem('LAST_RESET', new Date().toISOString());
-    alert('Approvals exported and reset!');
-    renderTable();
-  }
-}
-
-// render table with filters, pagination
-function renderTable() {
-  const tbody = byId('approvalTable').querySelector('tbody');
-  tbody.innerHTML = '';
-  const search = byId('searchInput').value.toLowerCase();
-  const dateFilter = byId('filterDate').value;
-  const statusFilter = byId('statusFilter').value;
-  const filtered = approvals.filter(a => {
-    const matchSearch = (a.chain+' '+a.src+' '+a.mode+' '+(a.ticket||'')+' '+a.requestor+' '+a.approver).toLowerCase().includes(search);
-    const matchDate = dateFilter ? new Date(a.requestedTime).toISOString().split('T')[0]===dateFilter : true;
-    const matchStatus = statusFilter ? a.status===statusFilter : true;
-    return matchSearch && matchDate && matchStatus;
-  });
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  if (currentPage > totalPages) currentPage = 1;
-  const start = (currentPage-1)*PAGE_SIZE;
-  const pageData = filtered.slice(start, start+PAGE_SIZE);
-
-  pageData.forEach(a => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${a.id}</td>
-      <td>${a.requestor}</td>
-      <td>${a.approver}</td>
-      <td>${a.chain}</td>
-      <td>${a.src}</td>
-      <td>${a.mode}</td>
-      <td>${a.step||'NA'}</td>
-      <td>${a.ticket}</td>
-      <td>${a.reason}</td>
-      <td>${new Date(a.requestedTime).toLocaleString()}</td>
-      <td>${a.approvalTime ? new Date(a.approvalTime).toLocaleString() : ''}</td>
-      <td><span class="status ${a.status}">${a.status}</span></td>
-      <td>
-        <button class="pagebtn" onclick="approveRequest('${a.id}')">Approve</button>
-        <button class="pagebtn" onclick="rejectRequest('${a.id}')">Reject</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  // pagination
-  const pag = byId('pagination'); pag.innerHTML='';
-  for(let i=1;i<=totalPages;i++){
-    const b=document.createElement('button'); b.textContent=i; b.className='pagebtn';
-    if(i===currentPage) b.style.background='#eef2ff';
-    b.onclick = ()=>{ currentPage=i; renderTable(); };
-    pag.appendChild(b);
-  }
-}
-
-// approve/reject functions
-async function approveRequest(id){
-  const idx = approvals.findIndex(a=>a.id===id);
-  if(idx>-1){ 
-    approvals[idx].status='Approved'; 
-    approvals[idx].approvalTime = new Date().toISOString(); 
-    await updateApprovalsJSON(); 
-    renderTable(); 
-  }
-}
-async function rejectRequest(id){
-  const idx = approvals.findIndex(a=>a.id===id);
-  if(idx>-1){
-    const reason = prompt('Reason for rejection (optional)');
-    approvals[idx].status='Rejected';
-    approvals[idx].approvalTime = new Date().toISOString();
-    if(reason) approvals[idx].rejectReason = reason;
-    await updateApprovalsJSON();
-    renderTable();
-  }
-}
-
-// modal submit
-byId('submitRequest').addEventListener('click', async ()=>{
-  const req = byId('modalRequestor').value.trim();
-  const app = byId('modalApprover').value.trim();
-  const ticket = byId('modalTicket').value.trim();
-  const reason = byId('modalReason').value.trim();
-  if(!req || !app || !ticket || !reason){ alert('Fill all required fields'); return; }
-
-  const payload = JSON.parse(byId('output').textContent || '{}');
-  const id = 'REQ-'+Math.floor(Math.random()*900000+100000);
-  const requestedTime = new Date().toISOString();
-  const record = {
-    id, requestor:req, approver:app, chain: payload.chain||'NA', src: payload.src||'NA', mode: payload.mode||'NA',
-    step: payload.step||'NA', ticket, reason, requestedTime, approvalTime:null, status:'Pending'
-  };
-  approvals.unshift(record);
-  await updateApprovalsJSON();
-  renderTable();
-  alert('Request submitted: '+id);
-  modal.style.display='none';
-
-  // check auto-export
-  await autoExportReset();
+  const payload=(()=>{ try{ return JSON.parse(byId('output').textContent); }catch(e){ return buildPayload(); }})();
+  const id='REQ-'+Math.floor(Math.random()*900000+100000); const requestedTime=new Date().toISOString();
+  const meta={ chain: payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name||payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name||payload.datamart?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name||'NA', src: payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.systems?.[0]?.r_src_id||payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.systems?.[0]?.r_src_id||'NA', mode: payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode||payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode||payload.datamart?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode||'NA' };
+  const record={ id, requestor:req, approver:app, chain:meta.chain||'NA', src:meta.src||'NA', mode:meta.mode||'NA', workers:workers, dms_tasks:byId('tasks')?.value?.split(',').map(s=>s.trim())||[], step:byId('step')?.value||'NA', ticket, reason, requestedTime, approvalTime:null, status:'Pending' };
+  approvals.unshift(record); save(); modal.style.display='none'; renderTable(); alert('Request submitted: '+id);
 });
 
-// filters
-byId('searchInput').addEventListener('input', ()=>{ currentPage=1; renderTable(); });
-byId('filterDate').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
-byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
+// ---- Table ----
+function renderTable(){
+  const tbody=byId('approvalTable').querySelector('tbody'); tbody.innerHTML='';
+  const search=byId('searchInput').value.toLowerCase(), dateFilter=byId('filterDate').value, status=byId('statusFilter').value;
+  const filtered=approvals.filter(a=>{
+    const matchSearch=(a.chain+' '+a.src+' '+a.mode+' '+(a.ticket||'')+' '+a.requestor+' '+a.approver).toLowerCase().includes(search);
+    const matchDate=dateFilter?new Date(a.requestedTime).toISOString().split('T')[0]===dateFilter:true;
+    const matchStatus=status?a.status===status:true;
+    return matchSearch && matchDate && matchStatus;
+  });
+  const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>totalPages) currentPage=1;
+  const start=(currentPage-1)*pageSize; const pageData=filtered.slice(start,start+pageSize);
+  pageData.forEach(a=>{
+    const tr=document.createElement('tr'); tr.innerHTML=`<td class="smaller">${a.id}</td><td class="smaller">${a.requestor}</td><td class="smaller">${a.approver}</td><td class="smaller">${a.chain}</td><td class="smaller">${a.src}</td><td class="smaller">${a.mode}</td><td class="smaller">${a.step||'NA'}</td><td class="smaller">${a.ticket}</td><td class="smaller">${a.reason}</td><td class="smaller">${new Date(a.requestedTime).toLocaleString()}</td><td class="smaller">${a.approvalTime?new Date(a.approvalTime).toLocaleString():'NA'}</td><td class="smaller"><span class="status ${a.status}">${a.status}</span></td><td class="smaller"><button class="pagebtn" onclick="approveRequest('${a.id}')">Approve</button><button class="pagebtn" onclick="rejectRequest('${a.id}')">Reject</button></td>`; tbody.appendChild(tr);
+  });
+  // pagination
+  const pag=byId('pagination'); pag.innerHTML=''; const total=filtered.length, totalP=Math.max(1,Math.ceil(total/pageSize));
+  for(let i=1;i<=totalP;i++){ const b=document.createElement('button'); b.textContent=i; b.className='pagebtn'; if(i===currentPage) b.style.background='#eef2ff'; b.onclick=()=>{ currentPage=i; renderTable(); }; pag.appendChild(b); }
+}
 
-// initial load
-loadApprovals();
+// ---- Approve / Reject ----
+function approveRequest(id){ const idx=approvals.findIndex(x=>x.id===id); if(idx>-1){ approvals[idx].status='Approved'; approvals[idx].approvalTime=new Date().toISOString(); save(); renderTable(); alert('Approved '+id); } }
+function rejectRequest(id){ const idx=approvals.findIndex(x=>x.id===id); if(idx>-1){ const reason=prompt('Reason for rejection (optional)'); approvals[idx].status='Rejected'; approvals[idx].approvalTime=new Date().toISOString(); if(reason) approvals[idx].rejectReason=reason; save(); renderTable(); alert('Rejected '+id); } }
+
+// ---- Filters ----
+['searchInput','filterDate','statusFilter'].forEach(id=>byId(id).addEventListener(id==='searchInput'?'input':'change', ()=>{ currentPage=1; renderTable(); }));
+
+// ---- Workers sync ----
+byId('workers_global').addEventListener('change', ()=>{ const w=byId('workers_global').value; if(byId('workers')) byId('workers').value=w; });
+
+// ---- Initial render ----
+renderTable();
 </script>
 </body>
 </html>
-
-
-
-
