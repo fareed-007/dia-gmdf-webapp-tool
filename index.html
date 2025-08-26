@@ -355,7 +355,12 @@ function renderTable(){
   const total = filtered.length; const totalP = Math.max(1, Math.ceil(total/pageSize));
   for(let i=1;i<=totalP;i++){ const b=document.createElement('button'); b.textContent=i; b.className='pagebtn'; if(i===currentPage) b.style.background='#eef2ff'; b.onclick = ()=>{ currentPage=i; renderTable(); }; pag.appendChild(b); }
 }
-
+// automatically refresh shared approvals every 30s
+setInterval(() => {
+  // console.log('Auto-refresh approvals from repo...');
+  loadSharedApprovals();
+}, 30_000);
+  
 // Approve/Reject local and instruct user how to persist to repo
 function approveLocal(id){
   const idx = approvals.findIndex(x=>x.id===id); if(idx===-1) return alert('Not found');
@@ -408,3 +413,4 @@ loadSharedApprovals().then(()=>{ /* loaded or fallback */ });
 </script>
 </body>
 </html>
+
