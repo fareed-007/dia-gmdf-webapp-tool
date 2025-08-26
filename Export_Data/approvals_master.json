@@ -10,8 +10,8 @@
     "ticket": "dsadsa",
     "reason": "das",
     "requestedTime": "2025-08-26T20:17:39.813Z",
-    "approvalTime": null,
-    "status": "Pending",
+    "approvalTime": "2025-08-26T20:23:33.481Z",
+    "status": "Approved",
     "payload": {
       "bucketName": "dsa",
       "keys": [
