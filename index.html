@@ -299,5 +299,79 @@ byId('workers_global').addEventListener('change', ()=>{ const w = byId('workers_
 // initial render and persistence load
 renderTable();
 </script>
+
+<!-- GitHub API Integration -->
+<script>
+// Configuration: Replace these with your actual GitHub details
+const GITHUB_OWNER = "fareed-007";      // e.g., "fareed-007"
+const GITHUB_REPO = "dia-gmdf-webapp-tool";             // e.g., "dia-gmdf-webapp-tool"
+const FILE_PATH = "requests.json";                // path to the JSON file
+const GITHUB_TOKEN = "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";                 // your GitHub Personal Access Token
+
+// GitHub API helper functions
+async function fetchRequestsFromGitHub() {
+    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+    const response = await fetch(url, {
+        headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3.raw"
+        }
+    });
+    if (!response.ok) {
+        console.error("Failed to fetch requests.json from GitHub");
+        return [];
+    }
+    return await response.json();
+}
+
+async function updateRequestsToGitHub(newData) {
+    const getUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+    const getResponse = await fetch(getUrl, {
+        headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3+json"
+        }
+    });
+    const fileInfo = await getResponse.json();
+    const sha = fileInfo.sha;
+
+    const putResponse = await fetch(getUrl, {
+        method: "PUT",
+        headers: {
+            Authorization: `Bearer ${GITHUB_TOKEN}`,
+            Accept: "application/vnd.github.v3+json"
+        },
+        body: JSON.stringify({
+            message: "Update requests.json via web app",
+            content: btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2)))),
+            sha: sha
+        })
+    });
+
+    if (!putResponse.ok) {
+        console.error("Failed to update requests.json to GitHub");
+    }
+}
+
+// Override localStorage with GitHub storage
+async function loadApprovalsFromGitHub() {
+    approvals = await fetchRequestsFromGitHub();
+    renderTable();
+}
+
+async function saveApprovalsToGitHub() {
+    await updateRequestsToGitHub(approvals);
+}
+
+// Hook into existing save and load logic
+window.addEventListener("load", () => {
+    loadApprovalsFromGitHub();
+});
+
+function save() {
+    saveApprovalsToGitHub();
+}
+</script>
+
 </body>
 </html>
