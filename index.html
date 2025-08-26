@@ -5,43 +5,41 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>DIA GMDF JSON Builder & Approval Tracker</title>
 <style>
-:root{--bg:#f7fbff;--card:#ffffff;--muted:#475569;--accent:#0ea5e9;--accent-2:#60a5fa;--border:#e6eef8;--ok:#16a34a;--danger:#ef4444;}
-body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:22px;color:#0f172a;}
-.wrap{max-width:1200px;margin:0 auto}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-h1{font-size:20px;margin:0;color:#0b1220}
-.subtitle{color:var(--muted);font-size:13px}
-.grid{display:grid;gap:16px}
-.cols-2{grid-template-columns:1fr 440px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(6,30,63,0.04)}
-label{display:block;font-weight:600;font-size:13px;color:#0b1220;margin-bottom:6px}
-input[type="text"], input[type="number"], select, textarea{width:100%;padding:8px;border:1px solid #dbeafe;border-radius:8px;font-size:13px;color:#0b1220;background:#fff}
-textarea{min-height:80px;font-family:monospace}
-.row{display:flex;gap:8px;align-items:center}
-.btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
-.btn.ghost{background:#fff;border:1px solid var(--border);color:#0b1220}
-.muted{color:var(--muted);font-size:13px}
-pre.output{background:#0b1220;color:#d6e0ff;padding:12px;border-radius:10px;min-height:160px;overflow:auto;font-size:12px}
-.small{font-size:12px;color:var(--muted)}
-.filters{display:flex;gap:8px;align-items:center}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{padding:8px;border-bottom:1px solid #eef6fc;text-align:left}
-th{background:#ecfeff;font-weight:700;font-size:12px}
-.status{padding:4px 8px;border-radius:999px;color:#fff;font-size:11px}
-.status.Pending{background:#f59e0b}
-.status.Approved{background:var(--ok)}
-.status.Rejected{background:var(--danger)}
-.pagination{display:flex;gap:6px;align-items:center;margin-top:8px}
-.pagebtn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer}
-.smaller{font-size:11px;color:#334155}
-.info{color:var(--accent-2);margin-left:6px;cursor:help}
-.required{color:#ef4444;margin-left:6px;font-weight:700}
-/* modal */
-.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
-.modal{background:#fff;padding:18px;border-radius:10px;width:520px;box-shadow:0 18px 40px rgba(2,6,23,0.3)}
-.row-between{display:flex;justify-content:space-between;align-items:center}
-.note{background:#f0f9ff;border:1px solid #e0f2fe;padding:8px;border-radius:8px;font-size:12px;color:#034f84}
-.inline{display:inline-block;margin-right:8px}
+  :root{--bg:#f7fbff;--card:#ffffff;--muted:#475569;--accent:#0ea5e9;--accent-2:#60a5fa;--border:#e6eef8;--ok:#16a34a;--danger:#ef4444;}
+  body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:22px;color:#0f172a;}
+  .wrap{max-width:1200px;margin:0 auto}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  h1{font-size:20px;margin:0;color:#0b1220}
+  .subtitle{color:var(--muted);font-size:13px}
+  .grid{display:grid;gap:16px}
+  .cols-2{grid-template-columns:1fr 440px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(6,30,63,0.04)}
+  label{display:block;font-weight:600;font-size:13px;color:#0b1220;margin-bottom:6px}
+  input[type="text"], input[type="number"], select, textarea{width:100%;padding:8px;border:1px solid #dbeafe;border-radius:8px;font-size:13px;color:#0b1220;background:#fff}
+  textarea{min-height:80px;font-family:monospace}
+  .row{display:flex;gap:8px;align-items:center}
+  .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+  .btn.ghost{background:#fff;border:1px solid var(--border);color:#0b1220}
+  .muted{color:var(--muted);font-size:13px}
+  pre.output{background:#0b1220;color:#d6e0ff;padding:12px;border-radius:10px;min-height:160px;overflow:auto;font-size:12px}
+  .small{font-size:12px;color:var(--muted)}
+  .filters{display:flex;gap:8px;align-items:center}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{padding:8px;border-bottom:1px solid #eef6fc;text-align:left}
+  th{background:#ecfeff;font-weight:700;font-size:12px}
+  .status{padding:4px 8px;border-radius:999px;color:#fff;font-size:11px}
+  .status.Pending{background:#f59e0b}
+  .status.Approved{background:var(--ok)}
+  .status.Rejected{background:var(--danger)}
+  .pagination{display:flex;gap:6px;align-items:center;margin-top:8px}
+  .pagebtn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer}
+  .smaller{font-size:11px;color:#334155}
+  .info{color:var(--accent-2);margin-left:6px;cursor:help}
+  .required{color:#ef4444;margin-left:6px;font-weight:700}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
+  .modal{background:#fff;padding:18px;border-radius:10px;width:520px;box-shadow:0 18px 40px rgba(2,6,23,0.3)}
+  .row-between{display:flex;justify-content:space-between;align-items:center}
+  .note{background:#f0f9ff;border:1px solid #e0f2fe;padding:8px;border-radius:8px;font-size:12px;color:#034f84}
 </style>
 </head>
 <body>
@@ -49,9 +47,9 @@ th{background:#ecfeff;font-weight:700;font-size:12px}
   <header>
     <div>
       <h1>DIA GMDF — JSON Builder & Approval Tracker</h1>
-      <div class="subtitle">Persistent approvals, mandatory fields, approve/reject actions</div>
+      <div class="subtitle">Persistent approvals, mandatory fields, create/edit via GitHub Issues</div>
     </div>
-    <div class="small muted">TCS Support team • DIA-GMDF (Full Loads Script Builder)</div>
+    <div class="small muted">TCS Support team • DIA-GMDF</div>
   </header>
 
   <div class="grid cols-2">
@@ -78,12 +76,13 @@ th{background:#ecfeff;font-weight:700;font-size:12px}
       <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
         <button class="btn" id="genBtn">Generate JSON</button>
         <button class="btn ghost" id="copyBtn">Copy JSON</button>
-        <button class="btn ghost" id="reqBtn">Request Approval</button>
-        <div style="margin-left:auto" class="small muted">Workers: 
-          <input id="workers_global" type="number" min="1" value="10" style="width:80px;margin-left:8px;padding:6px;border-radius:6px;border:1px solid #dbeafe"/>
-        </div>
+        <button class="btn ghost" id="issueCreateBtn">Create Request (Open Issue)</button>
+        <button class="btn ghost" id="issueEditBtn">Edit Selected (Open Issue)</button>
+        <div style="margin-left:auto" class="small muted">Workers: <input id="workers_global" type="number" min="1" value="10" style="width:80px;margin-left:8px;padding:6px;border-radius:6px;border:1px solid #dbeafe"/></div>
       </div>
-      <div style="margin-top:10px" class="note small muted">Fields marked <span class="required">*</span> are mandatory. Missing values are stored/displayed as <strong>NA</strong>.</div>
+
+      <div style="margin-top:10px" class="note small muted">Fields with <span class="required">*</span> are required. Use "Create Request" to add via GitHub Issues. Use "Refresh from Repo" after the GitHub Action runs to see updates.</div>
+      <div style="margin-top:8px"><button class="btn ghost" onclick="refreshFromRepo()">Refresh from Repo</button></div>
     </div>
 
     <div class="card">
@@ -99,27 +98,20 @@ th{background:#ecfeff;font-weight:700;font-size:12px}
   </div>
 
   <div style="height:12px"></div>
-
   <div class="card">
     <div class="row-between">
       <strong>Approval Requests</strong>
       <div class="filters">
         <input id="searchInput" type="text" placeholder="Search Chain/Source/Mode/Ticket" style="padding:8px;border-radius:8px;border:1px solid #e6eef8;width:360px"/>
         <input id="filterDate" type="date" style="padding:8px;border-radius:8px;border:1px solid #e6eef8"/>
-        <select id="statusFilter" style="padding:8px;border-radius:8px;border:1px solid #e6eef8">
-          <option value="">All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option>
-        </select>
+        <select id="statusFilter" style="padding:8px;border-radius:8px;border:1px solid #e6eef8"><option value="">All Status</option><option>Pending</option><option>Approved</option><option>Rejected</option></select>
       </div>
     </div>
 
     <div style="height:10px"></div>
     <div class="table-container">
       <table id="approvalTable">
-        <thead>
-          <tr>
-            <th>Req ID</th><th>Requestor</th><th>Approver</th><th>Chain</th><th>Src ID</th><th>Mode</th><th>Step</th><th>Ticket</th><th>Reason</th><th>Requested Time</th><th>Approval Time</th><th>Status</th><th>Action</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Req ID</th><th>Requestor</th><th>Approver</th><th>Chain</th><th>Src ID</th><th>Mode</th><th>Step</th><th>Ticket</th><th>Reason</th><th>Requested Time</th><th>Approval Time</th><th>Status</th><th>Action</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -127,7 +119,7 @@ th{background:#ecfeff;font-weight:700;font-size:12px}
   </div>
 </div>
 
-<!-- Modal for Request Approval -->
+<!-- Request Modal (not used to commit directly; used to prefill issue in edit flow) -->
 <div id="modalBackdrop" class="modal-backdrop">
   <div class="modal" role="dialog" aria-modal="true">
     <div class="row-between"><strong>Request Approval</strong><button id="closeModal" class="btn ghost">Close</button></div>
@@ -138,56 +130,55 @@ th{background:#ecfeff;font-weight:700;font-size:12px}
       <label style="margin-top:8px">Reference Ticket <span class="required">*</span></label><input id="modalTicket" type="text" placeholder="e.g. INC-12345">
       <label style="margin-top:8px">Reason <span class="required">*</span></label><textarea id="modalReason" placeholder="Short reason for request"></textarea>
       <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
-        <button id="submitRequest" class="btn">Submit Request</button>
-        <button id="cancelRequest" class="btn ghost">Cancel</button>
+        <button id="submitModal" class="btn">OK</button>
+        <button id="cancelModal" class="btn ghost">Cancel</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ---- Persistence & helpers ----
-const byId=id=>document.getElementById(id);
-const STORAGE_KEY='dia_approvals_v1';
-const RESET_KEY='dia_approvals_last_reset_v1';
-const RESET_DAYS=90;
-let approvals = JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')||[];
-let currentPage=1; const pageSize=8;
+/* ----------------------------- Configuration ----------------------------- */
+/* Replace these values if your repo is different */
+const REPO_OWNER = 'fareed-007';
+const REPO_NAME  = 'dia-gmdf-webapp-tool';
+const FILE_PATH  = 'Export_File/approvals.json';
+const BRANCH     = 'main';
+const RAW_URL = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${BRANCH}/${FILE_PATH}`;
+
+const STORAGE_KEY = 'dia_approvals_v1';
+/* ----------------------------- End config ------------------------------- */
+
+const byId = id => document.getElementById(id);
+let approvals = []; // loaded from repo or localStorage fallback
+let currentPage = 1;
+const pageSize = 8;
+
 function na(v){ return (v===undefined||v===null||v==='')? 'NA' : v; }
-function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(approvals)); localStorage.setItem(RESET_KEY, localStorage.getItem(RESET_KEY) || new Date().toISOString()); }
+function saveLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(approvals)); }
 
-(function autoExportReset(){
-  const last = localStorage.getItem(RESET_KEY);
-  if(!last){ localStorage.setItem(RESET_KEY,new Date().toISOString()); return; }
-  const diffDays = (Date.now()-new Date(last).getTime())/(1000*60*60*24);
-  if(diffDays >= RESET_DAYS && approvals.length>0){
-    const rows=[['Req ID','Requestor','Approver','Chain','Src','Mode','Step','Ticket','Reason','Requested Time','Approval Time','Status']];
-    approvals.forEach(a=>rows.push([a.id,a.requestor,a.approver,a.chain,a.src,a.mode,a.step||'NA',a.ticket,a.reason,new Date(a.requestedTime).toLocaleString(),a.approvalTime?new Date(a.approvalTime).toLocaleString():'',a.status]));
-    const blob = new Blob([rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n')],{type:'text/csv'});
-    const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='approvals_export_'+new Date(last).toISOString().slice(0,10)+'.csv'; a.click(); URL.revokeObjectURL(url);
-    approvals=[]; save(); localStorage.setItem(RESET_KEY,new Date().toISOString());
-  }
-})();
-
-// ---- Dynamic Fields ----
+// ------------------ Dynamic fields builder (keeps your previous logic) ------------------
 function addField(label,id,multi=false,opts){
-  const container=byId('dynamicFields'); const wrap=document.createElement('div'); wrap.style.marginBottom='8px';
-  const lab=document.createElement('label'); lab.textContent=label+(opts?.required?' ':''); if(opts?.required){ const star=document.createElement('span'); star.className='required'; star.textContent='*'; lab.appendChild(star); } lab.htmlFor=id; wrap.appendChild(lab);
+  const container=byId('dynamicFields');
+  const wrap=document.createElement('div'); wrap.style.marginBottom='8px';
+  const lab=document.createElement('label'); lab.textContent = label + (opts?.required ? ' ':'');
+  if(opts?.required){ const star=document.createElement('span'); star.className='required'; star.textContent='*'; lab.appendChild(star); }
+  lab.htmlFor=id; wrap.appendChild(lab);
   let field;
   if(multi){ field=document.createElement('textarea'); }
-  else if(opts?.type==='select'){ field=document.createElement('select'); opts.choices.forEach(ch=>{const o=document.createElement('option');o.value=ch;o.textContent=ch;field.appendChild(o);}); }
-  else{ field=document.createElement('input'); field.type=opts?.inputType||'text'; }
+  else if(opts?.type==='select'){ field=document.createElement('select'); opts.choices.forEach(ch=>{ const o=document.createElement('option'); o.value=ch; o.textContent=ch; field.appendChild(o); }); }
+  else { field=document.createElement('input'); field.type = opts?.inputType || 'text'; }
   field.id=id; wrap.appendChild(field); container.appendChild(wrap);
-  if(opts?.info){ const info=document.createElement('span'); info.className='info'; info.textContent=' ℹ️'; info.title=opts.info; lab.appendChild(info); }
+  if(opts?.info){ const info = document.createElement('span'); info.className='info'; info.textContent=' ℹ️'; info.title = opts.info; lab.appendChild(info); }
   return field;
 }
 
 function renderFields(){
-  const type=byId('scriptType').value; const c=byId('dynamicFields'); c.innerHTML='';
-  const modeChoices=['delta','full','full_restore','recalculation'];
+  const type = byId('scriptType').value; const c = byId('dynamicFields'); c.innerHTML='';
+  const modeChoices = ['delta','full','full_restore','recalculation'];
   if(type==='dmsRaw'){ addField('Bucket Name','bucket'); addField('Key paths (comma separated)','key',true); }
   else if(type==='recalc'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Table Name','table'); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
-  else if(type==='recalcBackup'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Tables with backup_load_id (JSON array)','tables',true,{info:'{\n  "table_name": "<TABLE_NAME>",\n  "backup_load_id": "jr_<loadid>"\n}'}); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
+  else if(type==='recalcBackup'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Tables with backup_load_id (JSON array)','tables',true,{info:'{\\n  \"table_name\": \"<TABLE_NAME>\",\\n  \"backup_load_id\": \"jr_<loadid>\"\\n}'}); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
   else if(type==='dmsTask'){ addField('Action (start/stop)','action',false,{required:true}); addField('Task Names (comma separated)','tasks',true,{required:true,info:'Provide DMS task names comma separated'}); }
   else if(type==='refine'){ addField('Chain Name','chain',false,{required:true}); addField('Source ID','src',false,{required:true}); addField('Tables (comma separated)','tables',true); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
   else if(type==='conform'){ addField('Chain Name','chain',false,{required:true}); addField('Parent ETL Job','parent'); addField('Source ID','src',false,{required:true}); addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true}); addField('Workers','workers',false,{required:true,inputType:'number'}); }
@@ -199,89 +190,167 @@ function renderFields(){
 }
 byId('scriptType').addEventListener('change', renderFields); renderFields();
 
-// ---- Build Payload ----
+// ------------------ Build payload ------------------
 function buildPayload(){
-  const type=byId('scriptType').value; 
+  const type = byId('scriptType').value;
   const w = byId('workers')?.value || byId('workers_global')?.value || 'NA';
   try{
-    if(type==='dmsRaw'){ return { bucketName: na(byId('bucket')?.value), keys: byId('key')?.value?.split(',').map(s=>s.trim())||[] }; }
-    if(type==='recalc'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), tables:[{table_name:na(byId('table')?.value)}] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
-    if(type==='recalcBackup'){ let tablesArr=[]; try{ tablesArr=JSON.parse(byId('tables')?.value||'[]'); }catch(e){ tablesArr=[]; } return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), tables:tablesArr }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
-    if(type==='dmsTask'){ const action=na(byId('action')?.value); const list=byId('tasks')?.value?.split(',').map(s=>s.trim())||[]; return { dms:{ action, dms_object:'task', mode:'default', ...(action==='start'?{start_type:'resume'}:{}), input_list:list } }; }
-    if(type==='refine'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), tables:byId('tables')?.value?.split(',').map(s=>s.trim())||[] }], mode:na(byId('mode')?.value), n_workers:Number(w)||10, free_threads:true }] }] } }; }
-    if(type==='conform'){ return { launch:'manual', conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ r_src_id:na(byId('src')?.value), dependencies: [] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
-    if(type==='conformTable'){ return { launch:'manual', conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), parent_etl_job:na(byId('parent')?.value), systems:[{ r_src_id:na(byId('src')?.value), tables:byId('tables')?.value?.split(',').map(s=>s.trim())||[] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
-    if(type==='restore'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:false, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value), dms_tasks:byId('tasks')?.value?.split(',').map(s=>s.trim())||[] }], mode:na(byId('mode')?.value), step:na(byId('step')?.value), n_workers:Number(w)||10, free_threads:true }] }] } }; }
-    if(type==='refineConform'){ return { launch:'batch', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id:na(byId('src')?.value) }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] }, conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ r_src_id:na(byId('src')?.value), dependencies:[] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
-    if(type==='datamart'){ return { launch:'manual', datamart:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ applctn_cd:na(byId('app')?.value) }], mode:na(byId('mode')?.value), n_workers:Number(w)||10, free_threads:true }] }] } }; }
-    if(type==='datamartEntity'){ const ent=byId('entities')?.value?.split(',').map(s=>s.trim())||[]; return { launch:'manual', datamart:{ sequential_jobs:[{ parallel_jobs:[{ chain_name:na(byId('chain')?.value), check_dependency:true, parent_etl_job:na(byId('parent')?.value), systems:[{ applctn_cd:na(byId('app')?.value), etl_entity:ent, dependencies: [] }], mode:na(byId('mode')?.value), n_workers:Number(w)||40, free_threads:true }] }] } }; }
-  }catch(e){ return { error:e.message }; }
+    if(type==='dmsRaw'){ return { bucketName: na(byId('bucket')?.value), keys: byId('key')?.value ? byId('key').value.split(',').map(s=>s.trim()) : [] }; }
+    if(type==='recalc'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id: na(byId('src')?.value), tables:[{ table_name: na(byId('table')?.value) }] }], mode: na(byId('mode')?.value), n_workers: Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='recalcBackup'){ let t='[]', arr=[]; try{ t=byId('tables')?.value||'[]'; arr=JSON.parse(t);}catch(e){arr=[];} return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id: na(byId('src')?.value), tables: arr }], mode: na(byId('mode')?.value), n_workers: Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='dmsTask'){ const action = na(byId('action')?.value); const list = byId('tasks')?.value ? byId('tasks').value.split(',').map(s=>s.trim()):[]; return { dms:{ action, dms_object:'task', mode:'default', ...(action==='start'?{start_type:'resume'}:{}), input_list: list } }; }
+    if(type==='refine'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id: na(byId('src')?.value), tables: byId('tables')?.value ? byId('tables').value.split(',').map(s=>s.trim()):[] }], mode: na(byId('mode')?.value), n_workers: Number(w)||10, free_threads:true }] }] } }; }
+    if(type==='conform'){ return { launch:'manual', conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job: na(byId('parent')?.value), systems:[{ r_src_id: na(byId('src')?.value), dependencies: [] }], mode: na(byId('mode')?.value), n_workers: Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='conformTable'){ return { launch:'manual', conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), parent_etl_job: na(byId('parent')?.value), systems:[{ r_src_id: na(byId('src')?.value), tables: byId('tables')?.value ? byId('tables').value.split(',').map(s=>s.trim()):[] }], mode: na(byId('mode')?.value), n_workers: Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='restore'){ return { launch:'manual', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:false, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id: na(byId('src')?.value), dms_tasks: byId('tasks')?.value ? byId('tasks').value.split(',').map(s=>s.trim()):[] }], mode: na(byId('mode')?.value), step: na(byId('step')?.value), n_workers: Number(w)||10, free_threads:true }] }] } }; }
+    if(type==='refineConform'){ return { launch:'batch', refine:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job:'edb_mq_dia_golden_copy', systems:[{ r_src_id: na(byId('src')?.value) }], mode: na(byId('mode')?.value), n_workers: Number(w)||40, free_threads:true }] }] }, conform:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job: na(byId('parent')?.value), systems:[{ r_src_id: na(byId('src')?.value), dependencies:[] }], mode: na(byId('mode')?.value), n_workers: Number(w)||40, free_threads:true }] }] } }; }
+    if(type==='datamart'){ return { launch:'manual', datamart:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job: na(byId('parent')?.value), systems:[{ applctn_cd: na(byId('app')?.value) }], mode: na(byId('mode')?.value), n_workers: Number(w)||10, free_threads:true }] }] } }; }
+    if(type==='datamartEntity'){ const ent = byId('entities')?.value ? byId('entities').value.split(',').map(s=>s.trim()):[]; return { launch:'manual', datamart:{ sequential_jobs:[{ parallel_jobs:[{ chain_name: na(byId('chain')?.value), check_dependency:true, parent_etl_job: na(byId('parent')?.value), systems:[{ applctn_cd: na(byId('app')?.value), etl_entity: ent, dependencies: [] }], mode: na(byId('mode')?.value), n_workers: Number(w)||40, free_threads:true }] }] } }; }
+  }catch(e){ return { error: e.message }; }
+  return {};
 }
 
-// ---- Generate / Copy / Download JSON ----
-byId('genBtn').addEventListener('click', ()=>{ byId('output').textContent=JSON.stringify(buildPayload(),null,2); });
-byId('copyBtn').addEventListener('click', ()=>{ const txt=byId('output').textContent; if(!txt){ alert('Nothing to copy'); return;} navigator.clipboard.writeText(txt).then(()=>alert('JSON copied to clipboard')); });
+// ------------------ UI actions ------------------
+byId('genBtn').addEventListener('click', ()=>{ byId('output').textContent = JSON.stringify(buildPayload(), null, 2); });
+byId('copyBtn').addEventListener('click', ()=>{ const txt = byId('output').textContent; if(!txt){ alert('Nothing to copy'); return;} navigator.clipboard.writeText(txt).then(()=>alert('JSON copied')); });
 byId('downloadBtn').addEventListener('click', ()=>{ const txt=byId('output').textContent||''; const blob=new Blob([txt],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='payload.json'; a.click(); URL.revokeObjectURL(url); });
 
-// ---- Modal ----
-const modal=byId('modalBackdrop');
-byId('reqBtn').addEventListener('click', ()=>{ modal.style.display='flex'; ['modalRequestor','modalApprover','modalTicket','modalReason'].forEach(id=>byId(id).value=''); });
-byId('closeModal').addEventListener('click', ()=>modal.style.display='none');
-byId('cancelRequest').addEventListener('click', ()=>modal.style.display='none');
+// Helper: create prefilled GitHub Issue URL and open it
+function openPrefilledIssue({title, body, labels='from-webapp'}){
+  const url = `https://github.com/${REPO_OWNER}/${REPO_NAME}/issues/new?labels=${encodeURIComponent(labels)}&title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}`;
+  window.open(url, '_blank');
+}
 
-byId('submitRequest').addEventListener('click', ()=>{
-  const req=byId('modalRequestor').value.trim(), app=byId('modalApprover').value.trim(), ticket=byId('modalTicket').value.trim(), reason=byId('modalReason').value.trim();
-  if(!req||!app||!ticket||!reason){ alert('Please fill all required fields'); return; }
-  const type=byId('scriptType').value;
-  const chain=byId('chain')?.value||'', src=byId('src')?.value||'', mode=byId('mode')?.value||'', workers=byId('workers')?.value||byId('workers_global')?.value||'', tasksField=byId('tasks')?.value||'';
-  if(['recalc','recalcBackup','refine','conform','conformTable','restore','refineConform','datamart','datamartEntity'].includes(type)){
-    if(!chain){ alert('Chain Name is required'); return; }
-    if(!src){ alert('Source ID is required'); return; }
-    if(!mode){ alert('Mode is required'); return; }
-    if(!workers){ alert('Workers is required'); return; }
-  }
-  if(type==='restore' && (!tasksField || !byId('step')?.value)){ alert('DMS Task(s) and Step are required for Full Restore'); return; }
-  if(type==='dmsTask' && !tasksField){ alert('Task Names are required for DMS Task'); return; }
+// Create new request: build payload + open issue prefilled with JSON block (label from-webapp)
+byId('issueCreateBtn').addEventListener('click', ()=> {
+  const payload = buildPayload();
+  // gather modal info in a quick prompt flow (simple)
+  const requestor = prompt('Requestor name:');
+  if(!requestor) return alert('Requestor required');
+  const approver = prompt('Approver name:');
+  if(!approver) return alert('Approver required');
+  const ticket = prompt('Reference Ticket (e.g. INC-12345):');
+  if(!ticket) return alert('Ticket required');
+  const reason = prompt('Short reason:');
+  if(!reason) return alert('Reason required');
 
-  const payload=(()=>{ try{ return JSON.parse(byId('output').textContent); }catch(e){ return buildPayload(); }})();
-  const id='REQ-'+Math.floor(Math.random()*900000+100000); const requestedTime=new Date().toISOString();
-  const meta={ chain: payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name||payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name||payload.datamart?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name||'NA', src: payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.systems?.[0]?.r_src_id||payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.systems?.[0]?.r_src_id||'NA', mode: payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode||payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode||payload.datamart?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode||'NA' };
-  const record={ id, requestor:req, approver:app, chain:meta.chain||'NA', src:meta.src||'NA', mode:meta.mode||'NA', workers:workers, dms_tasks:byId('tasks')?.value?.split(',').map(s=>s.trim())||[], step:byId('step')?.value||'NA', ticket, reason, requestedTime, approvalTime:null, status:'Pending' };
-  approvals.unshift(record); save(); modal.style.display='none'; renderTable(); alert('Request submitted: '+id);
+  // create an id
+  const id = 'REQ-' + Math.floor(Math.random()*900000 + 100000);
+  const rec = {
+    id, requestor, approver,
+    chain: (payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name) || (payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name) || (payload.datamart?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.chain_name) || 'NA',
+    src: (payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.systems?.[0]?.r_src_id) || 'NA',
+    mode: (payload.refine?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode) || (payload.conform?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode) || (payload.datamart?.sequential_jobs?.[0]?.parallel_jobs?.[0]?.mode) || 'NA',
+    workers: byId('workers')?.value || byId('workers_global')?.value || 'NA',
+    dms_tasks: byId('tasks')?.value ? byId('tasks').value.split(',').map(s=>s.trim()) : [],
+    step: byId('step')?.value || 'NA',
+    ticket, reason, requestedTime: new Date().toISOString(), approvalTime: null, status: 'Pending',
+    payload
+  };
+
+  const body = `Please add this request to approvals.json\n\n**Human details**\n- Requestor: ${requestor}\n- Approver: ${approver}\n- Ticket: ${ticket}\n- Reason: ${reason}\n\n**Approval record (JSON)**\n\`\`\`json\n${JSON.stringify(rec, null, 2)}\n\`\`\`\n\n(Automated Action: label 'from-webapp' will import this JSON into ${FILE_PATH})`;
+  openPrefilledIssue({ title: `${id} - ${rec.chain} - ${rec.src}`, body, labels: 'from-webapp' });
 });
 
-// ---- Table ----
+// Edit selected record: if user clicks a row (we'll capture selection), then Edit opens a prefilled Issue with update JSON
+let selectedId = null;
+function selectRow(id){
+  selectedId = id;
+  // highlight? for simplicity, alert
+  alert('Selected: ' + id + '. Now click Edit Selected to open prefilled Issue for editing.');
+}
+byId('issueEditBtn').addEventListener('click', ()=> {
+  if(!selectedId){ return alert('Select a request row first (click the Req ID)'); }
+  const rec = approvals.find(a=>a.id===selectedId);
+  if(!rec) return alert('Record not found');
+  // open issue with JSON containing same id -> Action will update existing entry
+  const body = `Edit request ${rec.id}\n\n**Updated JSON**\n\`\`\`json\n${JSON.stringify(rec, null, 2)}\n\`\`\`\n\n(Modify the fields inside the JSON and submit. Action will update the record by id.)`;
+  openPrefilledIssue({ title: `EDIT ${rec.id} - ${rec.chain}`, body, labels: 'from-webapp' });
+});
+
+// ------------------ Shared approvals loader ------------------
+// Loads the shared approvals.json from the repo raw URL. Falls back to localStorage.
+async function loadSharedApprovals(){
+  try{
+    const res = await fetch(RAW_URL, { cache: 'no-store' });
+    if(!res.ok) throw new Error('Repo file not accessible: ' + res.status);
+    const text = await res.text();
+    const parsed = JSON.parse(text);
+    if(!Array.isArray(parsed)) throw new Error('approvals.json is not an array');
+    approvals = parsed;
+    saveLocal();
+    renderTable();
+    console.log('Loaded approvals from repo:', RAW_URL, approvals.length);
+    return true;
+  }catch(err){
+    console.warn('Could not load shared approvals.json – falling back to localStorage:', err.message);
+    const local = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]') || [];
+    approvals = local;
+    renderTable();
+    return false;
+  }
+}
+async function refreshFromRepo(){ const ok = await loadSharedApprovals(); alert(ok ? 'Refreshed from repository' : 'Failed to fetch repo; using local data'); }
+
+// ------------------ Table rendering, selection, approve/reject ------------------
 function renderTable(){
-  const tbody=byId('approvalTable').querySelector('tbody'); tbody.innerHTML='';
-  const search=byId('searchInput').value.toLowerCase(), dateFilter=byId('filterDate').value, status=byId('statusFilter').value;
-  const filtered=approvals.filter(a=>{
-    const matchSearch=(a.chain+' '+a.src+' '+a.mode+' '+(a.ticket||'')+' '+a.requestor+' '+a.approver).toLowerCase().includes(search);
-    const matchDate=dateFilter?new Date(a.requestedTime).toISOString().split('T')[0]===dateFilter:true;
-    const matchStatus=status?a.status===status:true;
+  const tbody = byId('approvalTable').querySelector('tbody'); tbody.innerHTML = '';
+  const search = byId('searchInput').value.toLowerCase();
+  const dateFilter = byId('filterDate').value;
+  const status = byId('statusFilter').value;
+  const filtered = approvals.filter(a=>{
+    const m = (a.chain+' '+a.src+' '+a.mode+' '+(a.ticket||'')+' '+a.requestor+' '+a.approver).toLowerCase();
+    const matchSearch = m.includes(search);
+    const matchDate = dateFilter? (new Date(a.requestedTime).toISOString().split('T')[0]===dateFilter) : true;
+    const matchStatus = status? a.status===status : true;
     return matchSearch && matchDate && matchStatus;
   });
-  const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize)); if(currentPage>totalPages) currentPage=1;
-  const start=(currentPage-1)*pageSize; const pageData=filtered.slice(start,start+pageSize);
+  const totalPages = Math.max(1, Math.ceil(filtered.length/pageSize));
+  if(currentPage>totalPages) currentPage=1;
+  const start = (currentPage-1)*pageSize; const pageData = filtered.slice(start,start+pageSize);
   pageData.forEach(a=>{
-    const tr=document.createElement('tr'); tr.innerHTML=`<td class="smaller">${a.id}</td><td class="smaller">${a.requestor}</td><td class="smaller">${a.approver}</td><td class="smaller">${a.chain}</td><td class="smaller">${a.src}</td><td class="smaller">${a.mode}</td><td class="smaller">${a.step||'NA'}</td><td class="smaller">${a.ticket}</td><td class="smaller">${a.reason}</td><td class="smaller">${new Date(a.requestedTime).toLocaleString()}</td><td class="smaller">${a.approvalTime?new Date(a.approvalTime).toLocaleString():'NA'}</td><td class="smaller"><span class="status ${a.status}">${a.status}</span></td><td class="smaller"><button class="pagebtn" onclick="approveRequest('${a.id}')">Approve</button><button class="pagebtn" onclick="rejectRequest('${a.id}')">Reject</button></td>`; tbody.appendChild(tr);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="smaller"><a href="javascript:selectRow('${a.id}')">${a.id}</a></td>
+      <td class="smaller">${a.requestor}</td>
+      <td class="smaller">${a.approver}</td>
+      <td class="smaller">${a.chain}</td>
+      <td class="smaller">${a.src}</td>
+      <td class="smaller">${a.mode}</td>
+      <td class="smaller">${a.step||'NA'}</td>
+      <td class="smaller">${a.ticket}</td>
+      <td class="smaller">${a.reason}</td>
+      <td class="smaller">${new Date(a.requestedTime).toLocaleString()}</td>
+      <td class="smaller">${a.approvalTime? new Date(a.approvalTime).toLocaleString() : 'NA'}</td>
+      <td class="smaller"><span class="status ${a.status}">${a.status}</span></td>
+      <td class="smaller">
+        <button class="pagebtn" onclick="approveLocal('${a.id}')">Approve</button>
+        <button class="pagebtn" onclick="rejectLocal('${a.id}')">Reject</button>
+      </td>`;
+    tbody.appendChild(tr);
   });
-  // pagination
-  const pag=byId('pagination'); pag.innerHTML=''; const total=filtered.length, totalP=Math.max(1,Math.ceil(total/pageSize));
+  const pag = byId('pagination'); pag.innerHTML='';
+  const total = filtered.length; const totalP = Math.max(1, Math.ceil(total/pageSize));
   for(let i=1;i<=totalP;i++){ const b=document.createElement('button'); b.textContent=i; b.className='pagebtn'; if(i===currentPage) b.style.background='#eef2ff'; b.onclick=()=>{ currentPage=i; renderTable(); }; pag.appendChild(b); }
 }
 
-// ---- Approve / Reject ----
-function approveRequest(id){ const idx=approvals.findIndex(x=>x.id===id); if(idx>-1){ approvals[idx].status='Approved'; approvals[idx].approvalTime=new Date().toISOString(); save(); renderTable(); alert('Approved '+id); } }
-function rejectRequest(id){ const idx=approvals.findIndex(x=>x.id===id); if(idx>-1){ const reason=prompt('Reason for rejection (optional)'); approvals[idx].status='Rejected'; approvals[idx].approvalTime=new Date().toISOString(); if(reason) approvals[idx].rejectReason=reason; save(); renderTable(); alert('Rejected '+id); } }
+// Approve/reject locally: these update local array and localStorage. To persist to repo, open an edit Issue (use Edit Selected).
+function approveLocal(id){
+  const idx = approvals.findIndex(a=>a.id===id); if(idx===-1) return alert('Not found');
+  approvals[idx].status='Approved'; approvals[idx].approvalTime = new Date().toISOString(); saveLocal(); renderTable(); alert('Approved locally. To persist to repo for others, select and click Edit Selected to open an Issue to apply the change.');
+}
+function rejectLocal(id){
+  const idx = approvals.findIndex(a=>a.id===id); if(idx===-1) return alert('Not found');
+  const r = prompt('Reason for rejection (optional)'); approvals[idx].status='Rejected'; approvals[idx].approvalTime = new Date().toISOString(); if(r) approvals[idx].rejectReason = r; saveLocal(); renderTable(); alert('Rejected locally. To persist to repo for others, select and click Edit Selected and post the change via Issue.');
+}
 
-// ---- Filters ----
-['searchInput','filterDate','statusFilter'].forEach(id=>byId(id).addEventListener(id==='searchInput'?'input':'change', ()=>{ currentPage=1; renderTable(); }));
+// Filters
+['searchInput','filterDate'].forEach(id=>byId(id).addEventListener('change', ()=>{ currentPage=1; renderTable(); }));
+byId('searchInput').addEventListener('input', ()=>{ currentPage=1; renderTable(); });
+byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
 
-// ---- Workers sync ----
-byId('workers_global').addEventListener('change', ()=>{ const w=byId('workers_global').value; if(byId('workers')) byId('workers').value=w; });
-
-// ---- Initial render ----
-renderTable();
+// load shared data on start
+loadSharedApprovals();
 </script>
 </body>
 </html>
