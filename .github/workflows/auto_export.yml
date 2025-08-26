@@ -12,23 +12,32 @@ jobs:
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v3
+      with:
+        persist-credentials: false  # Important to use PAT for push
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
+    - name: Ensure Export_Data folder exists
+      run: mkdir -p Export_Data
+
     - name: Fetch CSV from App
       env:
         APP_TOKEN: ${{ secrets.APP_TOKEN }}
       run: |
-        mkdir -p Export_Data
-        curl -H "Authorization: token $APP_TOKEN" -o Export_Data/approvals_$(date +%F).csv https://fareed-007.github.io/dia-gmdf-webapp-tool/index.html/auto_export_csv
+        # Replace URL with a real API endpoint returning CSV
+        curl -H "Authorization: token $APP_TOKEN" \
+        -o Export_Data/approvals_$(date +%F).csv \
+        https://YOUR_HOSTED_APP_URL/auto_export_csv
 
     - name: Commit & Push CSV
+      env:
+        PAT: ${{ secrets.APP_TOKEN }}
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
         git add Export_Data/
-        git commit -m "Auto-export approvals CSV $(date +%F)" || echo "No changes to commit"
-        git push
+        git diff --cached --quiet || git commit -m "Auto-export approvals CSV $(date +%F)"
+        git push https://x-access-token:$PAT@github.com/${{ github.repository }} HEAD:main
