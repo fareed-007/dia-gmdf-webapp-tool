@@ -175,6 +175,53 @@ function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(approvals)); l
   }
 })();
 
+const REPO_OWNER = "fareed-007";
+const REPO_NAME = "dia-gmdf-webapp-tool";
+const FILE_PATH = "Export_Data/approvals.json";
+const BRANCH = "main";
+//const TOKEN = "<YOUR_APP_TOKEN>"; // replace later or fetch from secret
+env:
+  APP_TOKEN: ${{ secrets.APP_TOKEN }}
+
+// fetch approvals from repo
+async function loadApprovals() {
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`;
+  const res = await fetch(url, {
+    headers: { Authorization: `token ${TOKEN}` }
+  });
+  const data = await res.json();
+  const content = atob(data.content);
+  approvals = JSON.parse(content);
+  renderTable();
+}
+
+// push updates to repo
+async function updateApprovalsJSON() {
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+  // get the sha of current file
+  const getRes = await fetch(url, {
+    headers: { Authorization: `token ${TOKEN}` }
+  });
+  const getData = await getRes.json();
+  const sha = getData.sha;
+
+  const body = {
+    message: `Update approvals ${new Date().toISOString()}`,
+    content: btoa(JSON.stringify(approvals, null, 2)),
+    sha: sha,
+    branch: BRANCH
+  };
+
+  await fetch(url, {
+    method: "PUT",
+    headers: { Authorization: `token ${TOKEN}` },
+    body: JSON.stringify(body)
+  });
+}
+
+// Call load on page load
+loadApprovals();
+  
 // dynamic field builder
 function addField(label,id,multi=false, opts){ const container=byId('dynamicFields'); const wrap=document.createElement('div'); wrap.style.marginBottom='8px'; const lab=document.createElement('label'); lab.textContent=label + (opts && opts.required? ' ':''); if(opts && opts.required){ const star=document.createElement('span'); star.className='required'; star.textContent='*'; lab.appendChild(star); } lab.htmlFor=id; wrap.appendChild(lab); let field; if(multi){ field=document.createElement('textarea'); } else if(opts && opts.type==='select'){ field=document.createElement('select'); opts.choices.forEach(ch=>{ const o=document.createElement('option'); o.value=ch; o.textContent=ch; field.appendChild(o); }); } else { field=document.createElement('input'); field.type=(opts && opts.inputType)?opts.inputType:'text'; } field.id=id; wrap.appendChild(field); container.appendChild(wrap); if(opts && opts.info){ const info=document.createElement('span'); info.className='info'; info.textContent=' ℹ️'; info.title=opts.info; lab.appendChild(info); } return field; }
 
@@ -307,4 +354,5 @@ renderTable();
 </script>
 </body>
 </html>
+
 
