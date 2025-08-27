@@ -4,7 +4,6 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>DIA GMDF JSON Builder & Approval Tracker</title>
-https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js
 <style>
   :root{--bg:#f7fbff;--card:#ffffff;--muted:#475569;--accent:#0ea5e9;--accent-2:#60a5fa;--border:#e6eef8;--ok:#16a34a;--danger:#ef4444;}
   body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:22px;color:#0f172a;}
@@ -583,49 +582,6 @@ function closeAIBot() {
   const box = document.getElementById("aiBotBox");
   box.style.display = "none";
 }
-
-//Here is the AI Chatbox read data
-<script>	
-let excelData = [];
-
-async function loadExcelData() {
-  const url = "https://fareed-007.github.io/dia-gmdf-webapp-tool/Export_file/Data_for_AI/data.xlsx";
-  const response = await fetch(url);
-  const arrayBuffer = await response.arrayBuffer();
-  const workbook = XLSX.read(arrayBuffer, { type: "array" });
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  excelData = XLSX.utils.sheet_to_json(sheet);
-  console.log("Excel data loaded:", excelData);
-}
-
-function askAIBot() {
-  const input = document.getElementById("aiBotInput").value.toLowerCase();
-  const messages = document.getElementById("aiBotMessages");
-  const userMessage = document.createElement("div");
-  userMessage.textContent = "You: " + input;
-  messages.appendChild(userMessage);
-
-  let response = "Sorry, I couldn't find anything related to your query.";
-  for (const row of excelData) {
-    for (const key in row) {
-      if (row[key] && row[key].toString().toLowerCase().includes(input)) {
-        response = `Found: ${JSON.stringify(row)}`;
-        break;
-      }
-    }
-    if (response !== "Sorry, I couldn't find anything related to your query.") break;
-  }
-
-  const botMessage = document.createElement("div");
-  botMessage.textContent = "Bot: " + response;
-  messages.appendChild(botMessage);
-  document.getElementById("aiBotInput").value = "";
-}
-</script>	
-
-// Load Excel data on page load
-window.addEventListener("DOMContentLoaded", loadExcelData);	
 	
 // save approvals to repo MASTER file (overwrites)
 async function saveApprovalsToRepo(arr, message){
@@ -655,6 +611,7 @@ async function saveApprovalsToRepo(arr, message){
   byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
   byId('workers_global').addEventListener('change', ()=>{ if(byId('workers')) byId('workers').value = byId('workers_global').value; });
 })();
+
 </script>
 </body>
 </html>
