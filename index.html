@@ -96,6 +96,9 @@
 #aiBotInputArea button:hover {
   background-color: #357ABD;
 }
+#aiBotControls button {
+  background: transparent; border: none; color: white; font-size: 16px; cursor: pointer;
+}
 </style>	
 </head>
 <body>
@@ -604,6 +607,14 @@ async function loadApprovalsFromRepo(){
   }
 }
 
+function minimizeAIBot() {
+  var body = document.getElementById("aiBotBody");
+  if (body.style.display === "none") {
+    body.style.display = "block";
+  } else {
+    body.style.display = "none";
+  }
+}	
 // save approvals to repo MASTER file (overwrites)
 async function saveApprovalsToRepo(arr, message){
   if(!settings.token){ throw new Error('No GitHub token in Settings'); }
