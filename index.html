@@ -96,6 +96,9 @@
 #aiBotInputArea button:hover {
   background-color: #357ABD;
 }
+#aiBotControls button {
+  background: transparent; border: none; color: white; font-size: 16px; cursor: pointer;
+}
 </style>	
 </head>
 <body>
@@ -150,14 +153,14 @@
 	<!-- AI Bot Chatbox -->
 	<div id="aiBotBox">
 	<div id="aiBotHeader">🤖 DIA GMDF Assistant</div>
-		<div id="aiBotControls">
-			<button onclick="minimizeAIBot()">_</button>
-		</div>
-	<div id="aiBotMessages"></div>
 		<div id="aiBotInputArea">
 		<input id="aiBotInput" placeholder="Ask me anything..." type="text"/>
 		<button onclick="askAIBot()">Send</button>
 		</div>
+		<div id="aiBotControls">
+			<button onclick="minimizeAIBot()">_</button>
+		</div>
+	<div id="aiBotMessages"></div>
 	</div>
 
     <div style="height:12px"></div>
@@ -604,6 +607,14 @@ async function loadApprovalsFromRepo(){
   }
 }
 
+function minimizeAIBot() {
+  var body = document.getElementById("aiBotBody");
+  if (body.style.display === "none") {
+    body.style.display = "block";
+  } else {
+    body.style.display = "none";
+  }
+}	
 // save approvals to repo MASTER file (overwrites)
 async function saveApprovalsToRepo(arr, message){
   if(!settings.token){ throw new Error('No GitHub token in Settings'); }
