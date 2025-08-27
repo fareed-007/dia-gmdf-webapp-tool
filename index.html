@@ -611,7 +611,47 @@ async function saveApprovalsToRepo(arr, message){
   byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
   byId('workers_global').addEventListener('change', ()=>{ if(byId('workers')) byId('workers').value = byId('workers_global').value; });
 })();
+<script>
+let excelData = [];
 
+async function loadExcelData() {
+  const url = "https://fareed-007.github.io/dia-gmdf-webapp-tool/Export_file/Data_for_AI/data.xlsx";
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: "array" });
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  excelData = XLSX.utils.sheet_to_json(sheet);
+  console.log("Excel data loaded:", excelData);
+}
+
+function askAIBot() {
+  const input = document.getElementById("aiBotInput").value.toLowerCase();
+  const messages = document.getElementById("aiBotMessages");
+  const userMessage = document.createElement("div");
+  userMessage.textContent = "You: " + input;
+  messages.appendChild(userMessage);
+
+  let response = "Sorry, I couldn't find anything related to your query.";
+  for (const row of excelData) {
+    for (const key in row) {
+      if (row[key] && row[key].toString().toLowerCase().includes(input)) {
+        response = `Found: ${JSON.stringify(row)}`;
+        break;
+      }
+    }
+    if (response !== "Sorry, I couldn't find anything related to your query.") break;
+  }
+
+  const botMessage = document.createElement("div");
+  botMessage.textContent = "Bot: " + response;
+  messages.appendChild(botMessage);
+  document.getElementById("aiBotInput").value = "";
+}
+
+// Load Excel data on page load
+window.addEventListener("DOMContentLoaded", loadExcelData);
+</script>
 </script>
 </body>
 </html>
