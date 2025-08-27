@@ -43,6 +43,7 @@
   .note{background:#f0f9ff;border:1px solid #e0f2fe;padding:8px;border-radius:8px;font-size:12px;color:#034f84}
   .inline{display:inline-block;margin-right:8px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="wrap">
@@ -93,16 +94,16 @@
         </div>
       </div>
     </div>
-	
-	<div id="aiBotBox" style="position:fixed;bottom:10px;right:10px;width:300px;height:400px;border:1px solid #aaa;background:#fff;z-index:999;padding:10px;">
-	  <div id="aiBotMessages" style="height:300px;overflow-y:auto;border-bottom:1px solid #ccc;margin-bottom:10px;"></div>
+
+	<!-- AI Bot Chatbox -->
+	<div id="aiBotBox">
+	  <div id="aiBotMessages"></div>
 	  <input id="aiBotInput" type="text" placeholder="Ask me..." style="width:80%;">
 	  <button onclick="askAIBot()">Ask</button>
 	</div>
 
     <div style="height:12px"></div>
   </div>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script>
 
@@ -116,57 +117,6 @@ async function loadAIData() {
   const sheetName = workbook.SheetNames[0];
   aiData = XLSX.utils.sheet_to_json(workbook.Sheets[Sheet1]);
   console.log('AI Data Loaded:', aiData);
-}
-
-function validateWithAI(payload) {
-  const errors = [];
-
-  function checkValue(field, value, columnName) {
-    const exists = aiData.some(row => String(row[columnName]).trim() === String(value).trim());
-    if (!exists) errors.push(`${field} value "${value}" not found in AI model data (${columnName})`);
-  }
-
-  if (payload.conform) {
-    payload.conform.sequential_jobs.forEach(job => {
-      job.parallel_jobs.forEach(pj => {
-        checkValue('Source ID', pj.systems[0].r_src_id, 'Source ID');
-        (pj.systems[0].etl_entity || []).forEach(sess => {
-          checkValue('Conform Session', sess, 'entity');
-        });
-        if (pj.parent_etl_job) checkValue('Parent ETL Job', pj.parent_etl_job, 'Conform Job');
-      });
-    });
-  }
-
-  if (errors.length) {
-    alert('AI Validation Errors:\n' + errors.join('\n'));
-    return false;
-  }
-  return true;
-}
-
-const payload = buildPayload();
-if (!validateWithAI(payload)) return; // Stop if validation fails
-
-function askAIBot() {
-  const input = document.getElementById('aiBotInput').value.trim().toLowerCase();
-  const messages = document.getElementById('aiBotMessages');
-
-  if (!input) return;
-
-  // Basic keyword matching
-  let response = 'No match found.';
-  aiData.forEach(row => {
-    const rowStr = Object.values(row).join(' ').toLowerCase();
-    if (rowStr.includes(input)) {
-      response = JSON.stringify(row, null, 2);
-    }
-  });
-
-  messages.innerHTML += `<div><b>You:</b> ${input}</div>`;
-  messages.innerHTML += `<div><b>Bot:</b> <pre>${response}</pre></div>`;
-  messages.scrollTop = messages.scrollHeight;
-  document.getElementById('aiBotInput').value = '';
 }
 
 // Prefilled repo path to use
@@ -192,6 +142,24 @@ let currentPage=1; const pageSize=8;
   if(!settings.branch) settings.branch = 'main';
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 })();
+
+let aiData = [];
+
+// Load Excel from GitHub
+async function loadAIData() {
+  const url = 'https://raw.githubusercontent.com/fareed-007/dia-gmdf-webapp-tool/main/Export_File/Data_for_AI-Model.xlsx';
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+  const Sheet1 = workbook.SheetNames[0];
+  aiData = XLSX.utils.sheet_to_json(workbook.Sheets[Sheet1]);
+  console.log('AI Data Loaded:', aiData);
+}
+
+// Call this on page load
+window.onload = () => {
+  loadAIData();
+};
 
 // UI helpers
 function addField(label,id,multi=false, opts){ const container=byId('dynamicFields'); const wrap=document.createElement('div'); wrap.style.marginBottom='8px'; const lab=document.createElement('label'); lab.textContent=label + (opts && opts.required? ' ':''); if(opts && opts.required){ const star=document.createElement('span'); star.className='required'; star.textContent='*'; lab.appendChild(star); } lab.htmlFor=id; wrap.appendChild(lab); let field; if(multi){ field=document.createElement('textarea'); } else if(opts && opts.type==='select'){ field=document.createElement('select'); opts.choices.forEach(ch=>{ const o=document.createElement('option'); o.value=ch; o.textContent=ch; field.appendChild(o); }); } else { field=document.createElement('input'); field.type=(opts && opts.inputType)?opts.inputType:'text'; } field.id=id; wrap.appendChild(field); container.appendChild(wrap); if(opts && opts.info){ const info=document.createElement('span'); info.className='info'; info.textContent=' ℹ️'; info.title=opts.info; lab.appendChild(info); } return field; }
@@ -290,6 +258,26 @@ function renderFields(){
 }
 
 byId('scriptType').addEventListener('change', renderFields); renderFields();
+
+// After renderFields()
+function attachAutofill() {
+  const srcInput = byId('src');
+  if(!srcInput) return;
+
+  srcInput.addEventListener('change', () => {
+    const srcVal = srcInput.value.trim();
+    if(!srcVal || !aiData) return;
+
+    // Find matching row in Excel
+    const match = aiData.find(r => String(r["Source ID"]) === srcVal);
+    if(match) {
+      if(byId('chain')) byId('chain').value = match["Conform Job"] || '';
+      if(byId('parent')) byId('parent').value = match["Datamart Job"] || '';
+      if(byId('sessions')) byId('sessions').value = match["Conform Sessions"] || '';
+      if(byId('app')) byId('app').value = match["Application CD"] || '';
+    }
+  });
+}
 
 // Build payload (same as earlier)
 function na(v){ return (v===undefined||v===null||v==='')? 'NA' : v; }
@@ -549,6 +537,49 @@ function buildPayload(){
   }catch(e){
     return { error: e.message };
   }
+}
+
+// Validate Script using AI Excel Data
+function validateWithAI(payload){
+  const errors=[];
+  if(payload.conform){
+    payload.conform.sequential_jobs.forEach(job=>{
+      job.parallel_jobs.forEach(pj=>{
+        const srcVal = pj.systems[0].r_src_id;
+        if(!aiData.some(r=>String(r['Source ID']).trim()===srcVal)) errors.push(`Source ID "${srcVal}" not found`);
+        pj.systems[0].etl_entity.forEach(sess=>{
+          if(!aiData.some(r=>String(r['entity']).trim()===sess)) errors.push(`Conform Session "${sess}" not found`);
+        });
+        if(pj.parent_etl_job && !aiData.some(r=>String(r['Conform Job']).trim()===pj.parent_etl_job)) errors.push(`Parent ETL Job "${pj.parent_etl_job}" not found`);
+      });
+    });
+  }
+  if(errors.length){
+    alert('AI Validation Errors:\n'+errors.join('\n'));
+    return false;
+  }
+  return true;
+}
+
+function submitScript(){
+  const payload = buildPayload();
+  if(!validateWithAI(payload)) return; // stops if errors
+  byId('output').innerText = JSON.stringify(payload,null,2);
+}
+
+function askAIBot(){
+  const input = byId('aiBotInput').value.trim().toLowerCase();
+  const messages = byId('aiBotMessages');
+  if(!input) return;
+  let response = 'No match found.';
+  aiData.forEach(row=>{
+    const rowStr = Object.values(row).join(' ').toLowerCase();
+    if(rowStr.includes(input)) response = JSON.stringify(row,null,2);
+  });
+  messages.innerHTML += `<div><b>You:</b> ${input}</div>`;
+  messages.innerHTML += `<div><b>Bot:</b> <pre>${response}</pre></div>`;
+  messages.scrollTop = messages.scrollHeight;
+  byId('aiBotInput').value = '';
 }
 
 // display & copy
