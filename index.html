@@ -70,6 +70,15 @@
   border-top-right-radius: 8px;
 }
 
+.aiBotButtons button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
 #aiBotMessages {
   height: 200px;
   overflow-y: auto;
@@ -94,7 +103,7 @@
 #aiBotInputArea button {
   padding: 5px 10px;
 }
-</style>	
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -153,8 +162,11 @@
 <!-- AI Bot Chatbox -->
 <div id="aiBotBox" style="display: block;">
   <div id="aiBotHeader">
-    DIA GMDF Assistant
-    <button onclick="toggleAIBot()" style="float:right;">_</button>
+    <span>DIA GMDF Assistant</span>
+    <div class="aiBotButtons">
+      <button onclick="toggleAIBot()">_</button>
+      <button onclick="closeAIBot()">×</button>
+    </div>
   </div>
   <div id="aiBotBody">
     <div id="aiBotMessages"></div>
