@@ -33,7 +33,7 @@
   #aiBotControls{display:flex;gap:8px}
   #aiBotControls button{background:var(--accent);color:#fff;padding:8px 12px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
 </style>
-
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="wrap">
@@ -58,7 +58,7 @@
           <option value="refine">Refine Load</option>
           <option value="conform">Conform Load</option>
           <option value="conformTable">Conform Load with Tables</option>
-          <option value="conformEntity">Conform with ETL Sessions</option>
+		  <option value="conformEntity">Conform with ETL Sessions</option>
           <option value="restore">Full Restore</option>
           <option value="refineConform">Refine + Conform Load</option>
           <option value="datamart">Datamart Load</option>
@@ -84,17 +84,7 @@
         </div>
       </div>
     </div>
-
-    <!-- AI Bot Chatbox -->
-    <div id="aiBotBox">
-      <div id="aiBotMessages"></div>
-      <div id="aiBotControls">
-        <input id="aiBotInput" type="text" placeholder="Ask me...">
-        <button onclick="askAIBot()">Ask</button>
-      </div>
-    </div>
-  </div>
-	
+   <div style="height:12px"></div>	
 <script>
 let aiData = [];
 
