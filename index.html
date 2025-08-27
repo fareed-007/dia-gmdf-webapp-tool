@@ -583,37 +583,8 @@ function closeAIBot() {
   const box = document.getElementById("aiBotBox");
   box.style.display = "none";
 }
-	
-// save approvals to repo MASTER file (overwrites)
-async function saveApprovalsToRepo(arr, message){
-  if(!settings.token){ throw new Error('No GitHub token in Settings'); }
-  const path = (settings.dir || PREFILL_DIR).replace(/\/+$/,'') + '/' + MASTER_FILENAME;
-  // get sha if exists
-  let sha = null;
-  try{ const existing = await ghGetFile(path); if(existing) sha = existing.sha; }catch(e){ /*ignore*/ }
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(arr, null, 2))));
-  await ghPutFile(path, content, message || 'Update approvals master', sha);
-}
 
-// Manual export button not shown in UI; auto-run on load and provide a button via console if needed
-// GitHub file PUT wrapper reused above
-
-// Load on start: try to load master from repo, else fallback to local
-(async function start(){
-  // load settings from localStorage if present
-  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); if(s) settings = s;
-  // Try to load approvals from repo master file (shared state)
-  await loadApprovalsFromRepo();
-  // run auto export if due
-  await autoExportRunner();
-  // attach filters and events
-  byId('searchInput').addEventListener('input', ()=>{ currentPage=1; renderTable(); });
-  byId('filterDate').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
-  byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
-  byId('workers_global').addEventListener('change', ()=>{ if(byId('workers')) byId('workers').value = byId('workers_global').value; });
-})();
-</script>
-<script>
+//Here is the AI Chatbox read data
 let excelData = [];
 
 async function loadExcelData() {
@@ -652,7 +623,36 @@ function askAIBot() {
 }
 
 // Load Excel data on page load
-window.addEventListener("DOMContentLoaded", loadExcelData);
-</script>	
+window.addEventListener("DOMContentLoaded", loadExcelData);	
+	
+// save approvals to repo MASTER file (overwrites)
+async function saveApprovalsToRepo(arr, message){
+  if(!settings.token){ throw new Error('No GitHub token in Settings'); }
+  const path = (settings.dir || PREFILL_DIR).replace(/\/+$/,'') + '/' + MASTER_FILENAME;
+  // get sha if exists
+  let sha = null;
+  try{ const existing = await ghGetFile(path); if(existing) sha = existing.sha; }catch(e){ /*ignore*/ }
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(arr, null, 2))));
+  await ghPutFile(path, content, message || 'Update approvals master', sha);
+}
+
+// Manual export button not shown in UI; auto-run on load and provide a button via console if needed
+// GitHub file PUT wrapper reused above
+
+// Load on start: try to load master from repo, else fallback to local
+(async function start(){
+  // load settings from localStorage if present
+  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); if(s) settings = s;
+  // Try to load approvals from repo master file (shared state)
+  await loadApprovalsFromRepo();
+  // run auto export if due
+  await autoExportRunner();
+  // attach filters and events
+  byId('searchInput').addEventListener('input', ()=>{ currentPage=1; renderTable(); });
+  byId('filterDate').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
+  byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
+  byId('workers_global').addEventListener('change', ()=>{ if(byId('workers')) byId('workers').value = byId('workers_global').value; });
+})();
+</script>
 </body>
 </html>
