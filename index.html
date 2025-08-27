@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>DIA GMDF JSON Builder & Approval Tracker</title>
+https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js
 <style>
   :root{--bg:#f7fbff;--card:#ffffff;--muted:#475569;--accent:#0ea5e9;--accent-2:#60a5fa;--border:#e6eef8;--ok:#16a34a;--danger:#ef4444;}
   body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:22px;color:#0f172a;}
@@ -68,6 +69,15 @@
   align-items: center;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+}
+
+.aiBotButtons button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  margin-left: 5px;
+  cursor: pointer;
 }
 
 #aiBotMessages {
@@ -145,7 +155,7 @@
         </div>
       </div>
     </div>
-<!-- Toggle Button -->
+	<!-- Toggle Button -->
 <button onclick="toggleAIBot()" style="position:fixed;bottom:10px;right:320px;z-index:1000;">
   🤖 Chat
 </button>
@@ -153,8 +163,11 @@
 <!-- AI Bot Chatbox -->
 <div id="aiBotBox" style="display: block;">
   <div id="aiBotHeader">
-    DIA GMDF Assistant
-    <button onclick="toggleAIBot()" style="float:right;">_</button>
+    <span>DIA GMDF Assistant</span>
+    <div class="aiBotButtons">
+      <button onclick="toggleAIBot()">_</button>
+      <button onclick="closeAIBot()">×</button>
+    </div>
   </div>
   <div id="aiBotBody">
     <div id="aiBotMessages"></div>
@@ -164,7 +177,7 @@
     </div>
   </div>
 </div>
-	  
+
     <div style="height:12px"></div>
   </div>
 
@@ -551,66 +564,7 @@ function buildPayload(){
   }
 }
 
-// display & copy
-byId('genBtn').addEventListener('click', ()=>{ const p = buildPayload(); byId('output').textContent = JSON.stringify(p,null,2); });
-byId('copyBtn').addEventListener('click', ()=>{ const txt = byId('output').textContent; if(!txt){ alert('Nothing to copy'); return;} navigator.clipboard.writeText(txt).then(()=>alert('JSON copied to clipboard')); });
-byId('downloadBtn').addEventListener('click', ()=>{ const txt = byId('output').textContent || ''; const blob = new Blob([txt], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'payload.json'; a.click(); URL.revokeObjectURL(a.href); });
-
-// Modal & approval submission
-const modal = byId('modalBackdrop');
-byId('reqBtn').addEventListener('click', ()=>{ modal.style.display='flex'; byId('modalRequestor').value=''; byId('modalApprover').value=''; byId('modalTicket').value=''; byId('modalReason').value=''; });
-byId('closeModal').addEventListener('click', ()=> modal.style.display='none');
-byId('cancelRequest').addEventListener('click', ()=> modal.style.display='none');
-
-// GitHub API helpers
-function ghHeaders(){ return { 'Authorization': 'token '+(settings.token||''), 'Accept': 'application/vnd.github.v3+json' }; }
-async function ghGetFile(path){
-  const owner = settings.owner || PREFILL_OWNER;
-  const repo = settings.repo || PREFILL_REPO;
-  const branch = settings.branch || 'main';
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
-  const res = await fetch(url, { headers: ghHeaders() });
-  if(res.status===404) return null;
-  if(!res.ok) throw new Error('GitHub GET failed: '+(await res.text()));
-  const j = await res.json();
-  return j; // contains content (base64), sha, etc
-}
-async function ghPutFile(path, contentBase64, message, sha=null){
-  const owner = settings.owner || PREFILL_OWNER;
-  const repo = settings.repo || PREFILL_REPO;
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
-  const body = { message, content: contentBase64, branch: settings.branch || 'main' };
-  if(sha) body.sha = sha;
-  const res = await fetch(url, { method:'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
-  if(!res.ok) throw new Error('GitHub PUT failed: '+(await res.text()));
-  return await res.json();
-}
-
-// load master approvals from repo into app (shared state)
-async function loadApprovalsFromRepo(){
-  try{
-    const path = (settings.dir || PREFILL_DIR).replace(/\/+$/,'') + '/' + MASTER_FILENAME;
-    const file = await ghGetFile(path);
-    if(!file){ // create empty master file
-      approvals = [];
-      await saveApprovalsToRepo(approvals, 'Create master approvals file');
-      renderTable();
-      return;
-    }
-    const raw = atob(file.content.replace(/\n/g,''));
-    approvals = JSON.parse(raw || '[]');
-    saveLocal(); renderTable();
-  }catch(err){
-    console.warn('Could not load approvals from repo, falling back to localStorage. Error:', err.message);
-    // fallback to local stored copy if exists
-    const local = localStorage.getItem(STORAGE_KEY);
-    approvals = local ? JSON.parse(local) : [];
-    renderTable();
-  }
-}
-
 //Chatbox button function	
-<script>
 function askAIBot() {
   const input = document.getElementById("aiBotInput").value;
   const messages = document.getElementById("aiBotMessages");
@@ -620,22 +574,16 @@ function askAIBot() {
   document.getElementById("aiBotInput").value = "";
 }
 
-function toggleAIBot() {
+function minimizeAIBot() {
+  const body = document.getElementById("aiBotBody");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+}
+
+function closeAIBot() {
   const box = document.getElementById("aiBotBox");
-  box.style.display = box.style.display === "none" ? "block" : "none";
+  box.style.display = "none";
 }
-</script>
-	
-// save approvals to repo MASTER file (overwrites)
-async function saveApprovalsToRepo(arr, message){
-  if(!settings.token){ throw new Error('No GitHub token in Settings'); }
-  const path = (settings.dir || PREFILL_DIR).replace(/\/+$/,'') + '/' + MASTER_FILENAME;
-  // get sha if exists
-  let sha = null;
-  try{ const existing = await ghGetFile(path); if(existing) sha = existing.sha; }catch(e){ /*ignore*/ }
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(arr, null, 2))));
-  await ghPutFile(path, content, message || 'Update approvals master', sha);
-}
+
 
 // Manual export button not shown in UI; auto-run on load and provide a button via console if needed
 // GitHub file PUT wrapper reused above
@@ -654,7 +602,47 @@ async function saveApprovalsToRepo(arr, message){
   byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
   byId('workers_global').addEventListener('change', ()=>{ if(byId('workers')) byId('workers').value = byId('workers_global').value; });
 })();
-
 </script>
+<script>
+let excelData = [];
+
+async function loadExcelData() {
+  const url = "https://fareed-007.github.io/dia-gmdf-webapp-tool/Export_file/Data_for_AI/data.xlsx";
+  const response = await fetch(url);
+  const arrayBuffer = await response.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: "array" });
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  excelData = XLSX.utils.sheet_to_json(sheet);
+  console.log("Excel data loaded:", excelData);
+}
+
+function askAIBot() {
+  const input = document.getElementById("aiBotInput").value.toLowerCase();
+  const messages = document.getElementById("aiBotMessages");
+  const userMessage = document.createElement("div");
+  userMessage.textContent = "You: " + input;
+  messages.appendChild(userMessage);
+
+  let response = "Sorry, I couldn't find anything related to your query.";
+  for (const row of excelData) {
+    for (const key in row) {
+      if (row[key] && row[key].toString().toLowerCase().includes(input)) {
+        response = `Found: ${JSON.stringify(row)}`;
+        break;
+      }
+    }
+    if (response !== "Sorry, I couldn't find anything related to your query.") break;
+  }
+
+  const botMessage = document.createElement("div");
+  botMessage.textContent = "Bot: " + response;
+  messages.appendChild(botMessage);
+  document.getElementById("aiBotInput").value = "";
+}
+
+// Load Excel data on page load
+window.addEventListener("DOMContentLoaded", loadExcelData);
+</script>	
 </body>
 </html>
