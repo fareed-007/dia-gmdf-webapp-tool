@@ -23,31 +23,15 @@
   .muted{color:var(--muted);font-size:13px}
   pre.output{background:#0b1220;color:#d6e0ff;padding:12px;border-radius:10px;min-height:160px;overflow:auto;font-size:12px}
   .small{font-size:12px;color:var(--muted)}
-  .filters{display:flex;gap:8px;align-items:center}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  th,td{padding:8px;border-bottom:1px solid #eef6fc;text-align:left}
-  th{background:#ecfeff;font-weight:700;font-size:12px}
-  .status{padding:4px 8px;border-radius:999px;color:#fff;font-size:11px}
-  .status.Pending{background:#f59e0b}
-  .status.Approved{background:var(--ok)}
-  .status.Rejected{background:var(--danger)}
-  .pagination{display:flex;gap:6px;align-items:center;margin-top:8px}
-  .pagebtn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:#fff;cursor:pointer}
-  .smaller{font-size:11px;color:#334155}
-  .info{color:var(--accent-2);margin-left:6px;cursor:help}
-  .required{color:#ef4444;margin-left:6px;font-weight:700}
-  /* modal */
-  .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.45);display:none;align-items:center;justify-content:center;z-index:60}
-  .modal{background:#fff;padding:18px;border-radius:10px;width:520px;box-shadow:0 18px 40px rgba(2,6,23,0.3)}
   .row-between{display:flex;justify-content:space-between;align-items:center}
-  .note{background:#f0f9ff;border:1px solid #e0f2fe;padding:8px;border-radius:8px;font-size:12px;color:#034f84}
-  .inline{display:inline-block;margin-right:8px}
+  .required{color:#ef4444;margin-left:6px;font-weight:700}
 
-  /* AI Bot */
-  #aiBotBox{margin-top:16px}
-  #aiBotMessages{background:#f1f5f9;border:1px solid var(--border);padding:10px;border-radius:8px;height:180px;overflow:auto;font-size:13px;color:#0f172a;margin-bottom:8px}
-  #aiBotInput{flex:1}
+  /* AI Bot box */
+  #aiBotBox{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 4px 12px rgba(6,30,63,0.05);display:flex;flex-direction:column;gap:8px}
+  #aiBotMessages{height:160px;overflow-y:auto;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:8px;font-size:13px;color:#0f172a}
+  #aiBotInput{flex:1;padding:8px;border:1px solid #dbeafe;border-radius:8px;font-size:13px}
   #aiBotControls{display:flex;gap:8px}
+  #aiBotControls button{background:var(--accent);color:#fff;padding:8px 12px;border:none;border-radius:8px;font-weight:600;cursor:pointer}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
@@ -101,15 +85,12 @@
       </div>
     </div>
 
-    <div style="height:12px"></div>
-
     <!-- AI Bot Chatbox -->
-    <div class="card" id="aiBotBox">
-      <div class="row-between"><strong>AI Assistant</strong><span class="small muted">Ask questions about Chains, Jobs, Entities</span></div>
+    <div id="aiBotBox">
       <div id="aiBotMessages"></div>
       <div id="aiBotControls">
         <input id="aiBotInput" type="text" placeholder="Ask me...">
-        <button class="btn" onclick="askAIBot()">Ask</button>
+        <button onclick="askAIBot()">Ask</button>
       </div>
     </div>
   </div>
