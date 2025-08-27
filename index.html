@@ -42,6 +42,12 @@
   .row-between{display:flex;justify-content:space-between;align-items:center}
   .note{background:#f0f9ff;border:1px solid #e0f2fe;padding:8px;border-radius:8px;font-size:12px;color:#034f84}
   .inline{display:inline-block;margin-right:8px}
+
+  /* AI Bot */
+  #aiBotBox{margin-top:16px}
+  #aiBotMessages{background:#f1f5f9;border:1px solid var(--border);padding:10px;border-radius:8px;height:180px;overflow:auto;font-size:13px;color:#0f172a;margin-bottom:8px}
+  #aiBotInput{flex:1}
+  #aiBotControls{display:flex;gap:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
@@ -68,7 +74,7 @@
           <option value="refine">Refine Load</option>
           <option value="conform">Conform Load</option>
           <option value="conformTable">Conform Load with Tables</option>
-		  <option value="conformEntity">Conform with ETL Sessions</option>
+          <option value="conformEntity">Conform with ETL Sessions</option>
           <option value="restore">Full Restore</option>
           <option value="refineConform">Refine + Conform Load</option>
           <option value="datamart">Datamart Load</option>
@@ -94,14 +100,20 @@
         </div>
       </div>
     </div>
+
     <div style="height:12px"></div>
-  <!-- AI Bot Chatbox -->
-	<div id="aiBotBox">
-	  <div id="aiBotMessages"></div>
-	  <input id="aiBotInput" type="text" placeholder="Ask me..." style="width:80%;">
-	  <button onclick="askAIBot()">Ask</button>
-	</div>
+
+    <!-- AI Bot Chatbox -->
+    <div class="card" id="aiBotBox">
+      <div class="row-between"><strong>AI Assistant</strong><span class="small muted">Ask questions about Chains, Jobs, Entities</span></div>
+      <div id="aiBotMessages"></div>
+      <div id="aiBotControls">
+        <input id="aiBotInput" type="text" placeholder="Ask me...">
+        <button class="btn" onclick="askAIBot()">Ask</button>
+      </div>
+    </div>
   </div>
+	
 <script>
 let aiData = [];
 
