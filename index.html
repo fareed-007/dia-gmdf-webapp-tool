@@ -47,7 +47,7 @@
 <style>
 #aiBotBox {
   position: fixed;
-  bottom: 10px;
+  bottom: 60px;
   right: 10px;
   width: 320px;
   border: 1px solid #aaa;
@@ -93,14 +93,6 @@
 
 #aiBotInputArea button {
   padding: 5px 10px;
-}
-
-#aiBotHeader button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
 }
 </style>	
 </head>
@@ -153,21 +145,26 @@
         </div>
       </div>
     </div>
-	<div id="aiBotBox">
-	  <div id="aiBotHeader">
-	    🤖 DIA GMDF Assistant
-	    <button onclick="minimizeAIBot()">_</button>
-	    <button onclick="closeAIBot()">×</button>
-	  </div>
-	  <div id="aiBotBody">
-	    <div id="aiBotMessages"></div>
-	    <div id="aiBotInputArea">
-	      <input id="aiBotInput" type="text" placeholder="Ask me anything..." />
-	      <button onclick="askAIBot()">Send</button>
-	    </div>
-	  </div>
-	</div>
+<!-- Toggle Button -->
+<button onclick="toggleAIBot()" style="position:fixed;bottom:10px;right:320px;z-index:1000;">
+  🤖 Chat
+</button>
 
+<!-- AI Bot Chatbox -->
+<div id="aiBotBox" style="display: block;">
+  <div id="aiBotHeader">
+    DIA GMDF Assistant
+    <button onclick="toggleAIBot()" style="float:right;">_</button>
+  </div>
+  <div id="aiBotBody">
+    <div id="aiBotMessages"></div>
+    <div id="aiBotInputArea">
+      <input id="aiBotInput" type="text" placeholder="Ask me anything..." />
+      <button onclick="askAIBot()">Send</button>
+    </div>
+  </div>
+</div>
+	  
     <div style="height:12px"></div>
   </div>
 
@@ -613,6 +610,7 @@ async function loadApprovalsFromRepo(){
 }
 
 //Chatbox button function	
+<script>
 function askAIBot() {
   const input = document.getElementById("aiBotInput").value;
   const messages = document.getElementById("aiBotMessages");
@@ -622,15 +620,11 @@ function askAIBot() {
   document.getElementById("aiBotInput").value = "";
 }
 
-function minimizeAIBot() {
-  const body = document.getElementById("aiBotBody");
-  body.style.display = body.style.display === "none" ? "block" : "none";
-}
-
-function closeAIBot() {
+function toggleAIBot() {
   const box = document.getElementById("aiBotBox");
-  box.style.display = "none";
+  box.style.display = box.style.display === "none" ? "block" : "none";
 }
+</script>
 	
 // save approvals to repo MASTER file (overwrites)
 async function saveApprovalsToRepo(arr, message){
