@@ -47,57 +47,60 @@
 <style>
 #aiBotBox {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 10px;
+  right: 10px;
   width: 320px;
-  height: 450px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.2);
-  background: #f9f9f9;
+  border: 1px solid #aaa;
+  background: #fff;
   z-index: 999;
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
   font-family: Arial, sans-serif;
+  border-radius: 8px;
 }
+
 #aiBotHeader {
-  background-color: #4a90e2;
+  background: #0078D7;
   color: white;
   padding: 10px;
   font-weight: bold;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
+
 #aiBotMessages {
-  flex: 1;
-  padding: 10px;
+  height: 200px;
   overflow-y: auto;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid #ccc;
+  margin: 10px;
+  padding: 5px;
   font-size: 13px;
 }
+
 #aiBotInputArea {
   display: flex;
+  justify-content: space-between;
   padding: 10px;
-  gap: 5px;
 }
+
 #aiBotInput {
   flex: 1;
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 5px;
+  margin-right: 5px;
 }
+
 #aiBotInputArea button {
-  padding: 8px 12px;
-  background-color: #4a90e2;
-  color: white;
+  padding: 5px 10px;
+}
+
+#aiBotHeader button {
+  background: transparent;
   border: none;
-  border-radius: 5px;
+  color: white;
+  font-size: 16px;
   cursor: pointer;
-}
-#aiBotInputArea button:hover {
-  background-color: #357ABD;
-}
-#aiBotControls button {
-  background: transparent; border: none; color: white; font-size: 16px; cursor: pointer;
 }
 </style>	
 </head>
@@ -150,17 +153,19 @@
         </div>
       </div>
     </div>
-	<!-- AI Bot Chatbox -->
 	<div id="aiBotBox">
-	<div id="aiBotHeader">🤖 DIA GMDF Assistant</div>
-		<div id="aiBotInputArea">
-		<input id="aiBotInput" placeholder="Ask me anything..." type="text"/>
-		<button onclick="askAIBot()">Send</button>
-		</div>
-		<div id="aiBotControls">
-			<button onclick="minimizeAIBot()">_</button>
-		</div>
-	<div id="aiBotMessages"></div>
+	  <div id="aiBotHeader">
+	    🤖 DIA GMDF Assistant
+	    <button onclick="minimizeAIBot()">_</button>
+	    <button onclick="closeAIBot()">×</button>
+	  </div>
+	  <div id="aiBotBody">
+	    <div id="aiBotMessages"></div>
+	    <div id="aiBotInputArea">
+	      <input id="aiBotInput" type="text" placeholder="Ask me anything..." />
+	      <button onclick="askAIBot()">Send</button>
+	    </div>
+	  </div>
 	</div>
 
     <div style="height:12px"></div>
@@ -549,72 +554,26 @@ function buildPayload(){
   }
 }
 
-// display & copy
-byId('genBtn').addEventListener('click', ()=>{ const p = buildPayload(); byId('output').textContent = JSON.stringify(p,null,2); });
-byId('copyBtn').addEventListener('click', ()=>{ const txt = byId('output').textContent; if(!txt){ alert('Nothing to copy'); return;} navigator.clipboard.writeText(txt).then(()=>alert('JSON copied to clipboard')); });
-byId('downloadBtn').addEventListener('click', ()=>{ const txt = byId('output').textContent || ''; const blob = new Blob([txt], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'payload.json'; a.click(); URL.revokeObjectURL(a.href); });
-
-// Modal & approval submission
-const modal = byId('modalBackdrop');
-byId('reqBtn').addEventListener('click', ()=>{ modal.style.display='flex'; byId('modalRequestor').value=''; byId('modalApprover').value=''; byId('modalTicket').value=''; byId('modalReason').value=''; });
-byId('closeModal').addEventListener('click', ()=> modal.style.display='none');
-byId('cancelRequest').addEventListener('click', ()=> modal.style.display='none');
-
-// GitHub API helpers
-function ghHeaders(){ return { 'Authorization': 'token '+(settings.token||''), 'Accept': 'application/vnd.github.v3+json' }; }
-async function ghGetFile(path){
-  const owner = settings.owner || PREFILL_OWNER;
-  const repo = settings.repo || PREFILL_REPO;
-  const branch = settings.branch || 'main';
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
-  const res = await fetch(url, { headers: ghHeaders() });
-  if(res.status===404) return null;
-  if(!res.ok) throw new Error('GitHub GET failed: '+(await res.text()));
-  const j = await res.json();
-  return j; // contains content (base64), sha, etc
-}
-async function ghPutFile(path, contentBase64, message, sha=null){
-  const owner = settings.owner || PREFILL_OWNER;
-  const repo = settings.repo || PREFILL_REPO;
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
-  const body = { message, content: contentBase64, branch: settings.branch || 'main' };
-  if(sha) body.sha = sha;
-  const res = await fetch(url, { method:'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
-  if(!res.ok) throw new Error('GitHub PUT failed: '+(await res.text()));
-  return await res.json();
-}
-
-// load master approvals from repo into app (shared state)
-async function loadApprovalsFromRepo(){
-  try{
-    const path = (settings.dir || PREFILL_DIR).replace(/\/+$/,'') + '/' + MASTER_FILENAME;
-    const file = await ghGetFile(path);
-    if(!file){ // create empty master file
-      approvals = [];
-      await saveApprovalsToRepo(approvals, 'Create master approvals file');
-      renderTable();
-      return;
-    }
-    const raw = atob(file.content.replace(/\n/g,''));
-    approvals = JSON.parse(raw || '[]');
-    saveLocal(); renderTable();
-  }catch(err){
-    console.warn('Could not load approvals from repo, falling back to localStorage. Error:', err.message);
-    // fallback to local stored copy if exists
-    const local = localStorage.getItem(STORAGE_KEY);
-    approvals = local ? JSON.parse(local) : [];
-    renderTable();
-  }
+//Chatbox button function	
+function askAIBot() {
+  const input = document.getElementById("aiBotInput").value;
+  const messages = document.getElementById("aiBotMessages");
+  const newMessage = document.createElement("div");
+  newMessage.textContent = "You: " + input;
+  messages.appendChild(newMessage);
+  document.getElementById("aiBotInput").value = "";
 }
 
 function minimizeAIBot() {
-  var body = document.getElementById("aiBotBody");
-  if (body.style.display === "none") {
-    body.style.display = "block";
-  } else {
-    body.style.display = "none";
-  }
-}	
+  const body = document.getElementById("aiBotBody");
+  body.style.display = body.style.display === "none" ? "block" : "none";
+}
+
+function closeAIBot() {
+  const box = document.getElementById("aiBotBox");
+  box.style.display = "none";
+}
+	
 // save approvals to repo MASTER file (overwrites)
 async function saveApprovalsToRepo(arr, message){
   if(!settings.token){ throw new Error('No GitHub token in Settings'); }
