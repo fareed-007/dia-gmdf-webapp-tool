@@ -47,7 +47,7 @@
 <style>
 #aiBotBox {
   position: fixed;
-  bottom: 10px;
+  bottom: 60px;
   right: 10px;
   width: 320px;
   border: 1px solid #aaa;
@@ -68,6 +68,15 @@
   align-items: center;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+}
+
+.aiBotButtons button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  margin-left: 5px;
+  cursor: pointer;
 }
 
 #aiBotMessages {
@@ -93,14 +102,6 @@
 
 #aiBotInputArea button {
   padding: 5px 10px;
-}
-
-#aiBotHeader button {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
 }
 </style>	
 </head>
@@ -153,20 +154,28 @@
         </div>
       </div>
     </div>
-	<div id="aiBotBox">
-	  <div id="aiBotHeader">
-	    🤖 DIA GMDF Assistant
-	    <button onclick="minimizeAIBot()">_</button>
-	    <button onclick="closeAIBot()">×</button>
-	  </div>
-	  <div id="aiBotBody">
-	    <div id="aiBotMessages"></div>
-	    <div id="aiBotInputArea">
-	      <input id="aiBotInput" type="text" placeholder="Ask me anything..." />
-	      <button onclick="askAIBot()">Send</button>
-	    </div>
-	  </div>
-	</div>
+	<!-- Toggle Button -->
+<button onclick="toggleAIBot()" style="position:fixed;bottom:10px;right:320px;z-index:1000;">
+  🤖 Chat
+</button>
+
+<!-- AI Bot Chatbox -->
+<div id="aiBotBox" style="display: block;">
+  <div id="aiBotHeader">
+    <span>DIA GMDF Assistant</span>
+    <div class="aiBotButtons">
+      <button onclick="toggleAIBot()">_</button>
+      <button onclick="closeAIBot()">×</button>
+    </div>
+  </div>
+  <div id="aiBotBody">
+    <div id="aiBotMessages"></div>
+    <div id="aiBotInputArea">
+      <input id="aiBotInput" type="text" placeholder="Ask me anything..." />
+      <button onclick="askAIBot()">Send</button>
+    </div>
+  </div>
+</div>
 
     <div style="height:12px"></div>
   </div>
