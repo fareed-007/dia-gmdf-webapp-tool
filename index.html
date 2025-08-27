@@ -585,6 +585,7 @@ function closeAIBot() {
 }
 
 //Here is the AI Chatbox read data
+<script>	
 let excelData = [];
 
 async function loadExcelData() {
@@ -621,6 +622,7 @@ function askAIBot() {
   messages.appendChild(botMessage);
   document.getElementById("aiBotInput").value = "";
 }
+</script>	
 
 // Load Excel data on page load
 window.addEventListener("DOMContentLoaded", loadExcelData);	
