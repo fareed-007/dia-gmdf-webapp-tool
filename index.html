@@ -153,6 +153,8 @@ function addField(label, id, multi=false, opts) {
   } else if (opts && opts.type === 'checkbox') {
     field = document.createElement('input');
     field.type = 'checkbox';
+    field.checked = opts.defaultChecked || false;   // ✅ default value
+    if (opts.required) field.required = true;       // ✅ make mandatory
   } else {
     field = document.createElement('input');
     field.type = (opts && opts.inputType) ? opts.inputType : 'text';
@@ -190,8 +192,8 @@ function renderFields(){
     addField('Table Name','table',false,{required:true});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-	addField('Check Dependency','check_dependency',false,{type:'checkbox'});
-    addField('Free Threads','free_threads',false,{type:'checkbox'});  
+	addField('Check Dependency','check_dependency',false,{type:'checkbox', required:true, defaultChecked:true});
+    addField('Free Threads','free_threads',false,{type:'checkbox', required:true, defaultChecked:true});
 
   } else if(type==='recalcBackup'){
     addField('Chain Name','chain',false,{required:true});
@@ -291,12 +293,12 @@ function buildPayload(){
           sequential_jobs:[{
             parallel_jobs:[{
               chain_name: na(byId('chain')?.value),
-              check_dependency: byId('check_dependency')?.checked,   // ✅ no "|| true"
+              check_dependency: byId('check_dependency')?.checked,   // ✅ true or false
               parent_etl_job:'edb_mq_dia_golden_copy',
               systems:[{ r_src_id: String(na(byId('src')?.value)) || 0, tables:[{ table_name: na(byId('table')?.value) }] }],
               mode: na(byId('mode')?.value),
               n_workers: Number(w)||40,
-              free_threads: byId('free_threads')?.checked            // ✅ no "|| true"
+              free_threads: byId('free_threads')?.checked            // ✅ true or false
             }]
           }]
         }
