@@ -127,6 +127,7 @@ function addField(label, id, multi=false, opts) {
   const container = byId('dynamicFields');
   const wrap = document.createElement('div');
   wrap.style.marginBottom = '8px';
+  if (opts && opts.inline) wrap.className = "row"; // ✅ make row if inline=true
 
   const lab = document.createElement('label');
   lab.textContent = label + (opts && opts.required ? ' ' : '');
@@ -137,7 +138,6 @@ function addField(label, id, multi=false, opts) {
     lab.appendChild(star);
   }
   lab.htmlFor = id;
-  wrap.appendChild(lab);
 
   let field;
   if (multi) {
@@ -153,25 +153,44 @@ function addField(label, id, multi=false, opts) {
   } else if (opts && opts.type === 'checkbox') {
     field = document.createElement('input');
     field.type = 'checkbox';
-    field.checked = opts.defaultChecked || false;   // ✅ default value
-    if (opts.required) field.required = true;       // ✅ make mandatory
+    field.checked = opts.defaultChecked || false;
+    if (opts.required) field.required = true;
   } else {
     field = document.createElement('input');
     field.type = (opts && opts.inputType) ? opts.inputType : 'text';
   }
 
   field.id = id;
-  wrap.appendChild(field);
-  container.appendChild(wrap);
 
-  if (opts && opts.info) {
-    const info = document.createElement('span');
-    info.className = 'info';
-    info.textContent = ' ℹ️';
-    info.title = opts.info;
-    lab.appendChild(info);
+  // Wrap each label+input in a span when inline
+  if (opts && opts.inline) {
+    const span = document.createElement('span');
+    span.style.display = "flex";
+    span.style.alignItems = "center";
+    span.style.gap = "4px";
+    span.appendChild(field);
+    span.appendChild(lab);
+    if (opts && opts.info) {
+      const info = document.createElement('span');
+      info.className = 'info';
+      info.textContent = ' ℹ️';
+      info.title = opts.info;
+      span.appendChild(info);
+    }
+    wrap.appendChild(span);
+  } else {
+    wrap.appendChild(lab);
+    wrap.appendChild(field);
+    if (opts && opts.info) {
+      const info = document.createElement('span');
+      info.className = 'info';
+      info.textContent = ' ℹ️';
+      info.title = opts.info;
+      lab.appendChild(info);
+    }
   }
 
+  container.appendChild(wrap);
   return field;
 }
 
@@ -192,8 +211,18 @@ function renderFields(){
     addField('Table Name','table',false,{required:true});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-	addField('Check Dependency','check_dependency',false,{type:'checkbox', required:true, defaultChecked:true});
-    addField('Free Threads','free_threads',false,{type:'checkbox', required:true, defaultChecked:true});
+	    // ✅ Inline row with both checkboxes
+    const row = document.createElement('div');
+    row.className = "row";
+    byId('dynamicFields').appendChild(row);
+
+    // Check Dependency
+    row.appendChild(addField('Check Dependency','check_dependency',false,
+      {type:'checkbox', required:true, defaultChecked:true, inline:true, info:"true / false"}));
+
+    // Free Threads
+    row.appendChild(addField('Free Threads','free_threads',false,
+      {type:'checkbox', required:true, defaultChecked:true, inline:true, info:"true / false"}));
 
   } else if(type==='recalcBackup'){
     addField('Chain Name','chain',false,{required:true});
