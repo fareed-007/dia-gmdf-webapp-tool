@@ -558,6 +558,12 @@ async function loadApprovalsFromRepo(){
   }
 }
 
+const res = await fetch("https://dia-gmdf-webapp-tool-production.up.railway.app/ask", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ question })
+});
+	
 // save approvals to repo MASTER file (overwrites)
 async function saveApprovalsToRepo(arr, message){
   if(!settings.token){ throw new Error('No GitHub token in Settings'); }
