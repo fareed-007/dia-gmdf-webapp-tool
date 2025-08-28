@@ -176,8 +176,8 @@ function renderFields(){
     addField('Table Name','table',false,{required:true});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-    addField('Check Dependency','check_dependency',false,{type:'checkbox',checkedDefault:true});
-    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
+    addField('Check Dependency','check_dependency',false,{type:'checkbox', required:true, defaultChecked:true});
+    addField('Free Threads','free_threads',false,{type:'checkbox', required:true, defaultChecked:true});
   } else if(type==='recalcBackup'){
     addField('Chain Name','chain',false,{required:true});
     addField('Source ID','src',false,{required:true,inputType:'number'});
