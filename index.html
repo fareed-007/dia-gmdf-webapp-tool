@@ -211,18 +211,44 @@ function renderFields(){
     addField('Table Name','table',false,{required:true});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-	    // ✅ Inline row with both checkboxes
-    const row = document.createElement('div');
-    row.className = "row";
-    byId('dynamicFields').appendChild(row);
+	
+	// --- Row container for both checkboxes ---
+  const container = byId('dynamicFields');
+  const row = document.createElement('div');
+  row.className = 'row'; // flex row so items are next to each other
+  row.style.gap = "24px"; // space between
 
-    // Check Dependency
-    row.appendChild(addField('Check Dependency','check_dependency',false,
-      {type:'checkbox', required:true, defaultChecked:true, inline:true, info:"true / false"}));
+  // Check Dependency
+  const depWrap = document.createElement('label');
+  depWrap.style.display = "flex";
+  depWrap.style.alignItems = "center";
+  depWrap.style.gap = "6px";
+  depWrap.innerHTML = `Check Dependency<span class="required">*</span>
+    <span class="info" title="True or False - dependency check">ℹ️</span>`;
+  const depInput = document.createElement('input');
+  depInput.type = 'checkbox';
+  depInput.id = 'check_dependency';
+  depInput.checked = true; // default selected
+  depWrap.appendChild(depInput);
 
-    // Free Threads
-    row.appendChild(addField('Free Threads','free_threads',false,
-      {type:'checkbox', required:true, defaultChecked:true, inline:true, info:"true / false"}));
+  // Free Threads
+  const freeWrap = document.createElement('label');
+  freeWrap.style.display = "flex";
+  freeWrap.style.alignItems = "center";
+  freeWrap.style.gap = "6px";
+  freeWrap.innerHTML = `Free Threads<span class="required">*</span>
+    <span class="info" title="True or False - free threads usage">ℹ️</span>`;
+  const freeInput = document.createElement('input');
+  freeInput.type = 'checkbox';
+  freeInput.id = 'free_threads';
+  freeInput.checked = true; // default selected
+  freeWrap.appendChild(freeInput);
+
+  // Add both to same row
+  row.appendChild(depWrap);
+  row.appendChild(freeWrap);
+  container.appendChild(row);
+}
 
   } else if(type==='recalcBackup'){
     addField('Chain Name','chain',false,{required:true});
