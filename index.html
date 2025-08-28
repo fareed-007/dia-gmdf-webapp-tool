@@ -53,7 +53,6 @@
       </div>
       <div class="small muted">TCS - DIA GMDF Team • Prepare your script here</div>
     </header>
-
     <div class="grid cols-2">
       <div class="card">
         <div class="row-between"><strong>Script Builder</strong><span class="small muted">Select script type and fill required fields</span></div>
@@ -67,21 +66,18 @@
           <option value="refine">Refine Load</option>
           <option value="conform">Conform Load</option>
           <option value="conformTable">Conform Load with Tables</option>
-		  <option value="conformEntity">Conform with ETL Sessions</option>
+          <option value="conformEntity">Conform with ETL Sessions</option>
           <option value="restore">Full Restore</option>
           <option value="refineConform">Refine + Conform Load</option>
           <option value="datamart">Datamart Load</option>
           <option value="datamartEntity">Datamart with ETL Sessions</option>
         </select>
-
         <div id="dynamicFields" style="margin-top:12px"></div>
-
         <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
           <button class="btn" id="genBtn">Generate JSON</button>
           <button class="btn ghost" id="copyBtn">Copy JSON</button>
         </div>
       </div>
-
       <div class="card">
         <div class="row-between"><strong>Generated JSON</strong><div class="small muted">Preview & download</div></div>
         <pre id="output" class="output">{ }</pre>
@@ -93,27 +89,22 @@
         </div>
       </div>
     </div>
-
     <div style="height:12px"></div>
   </div>
-
 <script>
-// Prefilled repo path to use
 const PREFILL_OWNER = 'fareed-007';
 const PREFILL_REPO = 'dia-gmdf-webapp-tool';
 const PREFILL_DIR = 'Export_Data';
-const MASTER_FILENAME = 'approvals_master.json'; // central file that holds current requests
+const MASTER_FILENAME = 'approvals_master.json';
 const STORAGE_KEY='dia_approvals_shared_v1';
 const SETTINGS_KEY='dia_approvals_shared_settings_v1';
 const RESET_KEY='dia_approvals_last_reset_v1';
 const RESET_DAYS=90;
-
 const byId=id=>document.getElementById(id);
-let approvals = []; // will be loaded from repo master file if available
+let approvals = [];
 let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') || {};
 let currentPage=1; const pageSize=8;
 
-// Initialize settings with prefill if empty
 (function initSettings(){
   if(!settings.owner) settings.owner = PREFILL_OWNER;
   if(!settings.repo) settings.repo = PREFILL_REPO;
@@ -122,12 +113,10 @@ let currentPage=1; const pageSize=8;
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 })();
 
-// UI helpers
 function addField(label, id, multi=false, opts) {
   const container = byId('dynamicFields');
   const wrap = document.createElement('div');
   wrap.style.marginBottom = '8px';
-
   const lab = document.createElement('label');
   lab.textContent = label + (opts && opts.required ? ' ' : '');
   if (opts && opts.required) {
@@ -138,7 +127,6 @@ function addField(label, id, multi=false, opts) {
   }
   lab.htmlFor = id;
   wrap.appendChild(lab);
-
   let field;
   if (multi) {
     field = document.createElement('textarea');
@@ -157,11 +145,9 @@ function addField(label, id, multi=false, opts) {
     field = document.createElement('input');
     field.type = (opts && opts.inputType) ? opts.inputType : 'text';
   }
-
   field.id = id;
   wrap.appendChild(field);
   container.appendChild(wrap);
-
   if (opts && opts.info) {
     const info = document.createElement('span');
     info.className = 'info';
@@ -169,48 +155,42 @@ function addField(label, id, multi=false, opts) {
     info.title = opts.info;
     lab.appendChild(info);
   }
-
   return field;
 }
 
-//Render Function
 function renderFields(){
   const type=byId('scriptType').value;
   const c=byId('dynamicFields');
   c.innerHTML='';
   const modeChoices=['delta','full','full_restore'];
-
   if(type==='dmsRaw'){
     addField('Bucket Name','bucket',false);
     addField('Key paths (comma separated)','key',true);
-
   } else if(type==='recalc'){
     addField('Chain Name','chain',false,{required:true});
     addField('Source ID','src',false,{required:true,inputType:'number'});
     addField('Table Name','table',false,{required:true});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-	addField('Check Dependency','check_dependency',false,{type:'checkbox'});
-    addField('Free Threads','free_threads',false,{type:'checkbox'});  
-
+    addField('Check Dependency','check_dependency',false,{type:'checkbox',checkedDefault:true});
+    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
   } else if(type==='recalcBackup'){
     addField('Chain Name','chain',false,{required:true});
     addField('Source ID','src',false,{required:true,inputType:'number'});
     addField('Tables with backup_load_id (JSON array)','tables',true,{info:'{\n  "table_name": "<TABLE_NAME>",\n  "backup_load_id": "jr_<loadid>"\n}'});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-
   } else if(type==='dmsTask'){
     addField('Action (start/stop)','action',false,{required:true});
     addField('Task Names (comma separated)','tasks',true,{required:true,info:'Provide DMS task names comma separated'});
-
   } else if(type==='refine'){
     addField('Chain Name','chain',false,{required:true});
     addField('Source ID','src',false,{required:true,inputType:'number'});
     addField('Tables (comma separated)','tables',true);
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-
+    addField('Check Dependency','check_dependency',false,{type:'checkbox',checkedDefault:true});
+    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
   } else if(type==='conform'){
     addField('Chain Name','chain',false,{required:true});
     addField('Parent ETL Job','parent',false);
@@ -218,9 +198,8 @@ function renderFields(){
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
     addField('Conform Sessions (comma separated)','sessions',true,{info:'Provide session names as comma separated values'});
-    addField('Free Threads','free_threads',false,{type:'checkbox'});
-    addField('Check Dependency','check_dependency',false,{type:'checkbox'});
-
+    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
+    addField('Check Dependency','check_dependency',false,{type:'checkbox',checkedDefault:true});
   } else if(type==='conformTable'){
     addField('Chain Name','chain',false,{required:true});
     addField('Parent ETL Job','parent',false);
@@ -228,15 +207,13 @@ function renderFields(){
     addField('Tables (comma separated)','tables',true);
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-	
   } else if(type==='conformEntity'){
     addField('Chain Name','chain',false,{required:true});
     addField('Parent ETL Job','parent',false);
     addField('Source ID','src',false,{required:true,inputType:'number'});
     addField('ETL Entities (comma separated)','sessions',true);
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
-    addField('Workers','workers',false,{required:true,inputType:'number'});	
-
+    addField('Workers','workers',false,{required:true,inputType:'number'});
   } else if(type==='restore'){
     addField('Chain Name','chain',false,{required:true});
     addField('Source ID','src',false,{required:true,inputType:'number'});
@@ -244,21 +221,23 @@ function renderFields(){
     addField('Step (1 or 2)','step',false,{type:'select',choices:['1','2'],required:true});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-
+    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
   } else if(type==='refineConform'){
     addField('Chain Name','chain',false,{required:true});
     addField('Source ID','src',false,{required:true,inputType:'number'});
     addField('Parent ETL Job (Conform)','parent',false);
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-
+    addField('Check Dependency','check_dependency',false,{type:'checkbox',checkedDefault:true});
+    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
+    addField('Sessions (comma separated)','sessions',true); // for conform sessions in refineConform
   } else if(type==='datamart'){
     addField('Chain Name','chain',false,{required:true});
     addField('Parent ETL Job','parent',false);
     addField('Application Code','app',false);
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
-
+    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
   } else if(type==='datamartEntity'){
     addField('Chain Name','chain',false,{required:true});
     addField('Parent ETL Job','parent',false);
@@ -266,13 +245,15 @@ function renderFields(){
     addField('ETL Entities (comma separated)','entities',true);
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
+    addField('Free Threads','free_threads',false,{type:'checkbox',checkedDefault:true});
   }
 }
 
-byId('scriptType').addEventListener('change', renderFields); renderFields();
+byId('scriptType').addEventListener('change', renderFields);
+renderFields();
 
-// Build payload (same as earlier)
 function na(v){ return (v===undefined||v===null||v==='')? 'NA' : v; }
+
 function buildPayload(){
   const type = byId('scriptType').value;
   const w = byId('workers')?.value || byId('workers_global')?.value || 'NA';
@@ -283,7 +264,6 @@ function buildPayload(){
         keys: byId('key')?.value ? byId('key').value.split(',').map(s=>s.trim()) : []
       };
     }
-
     if(type==='recalc'){
       return {
         launch:'manual',
@@ -302,7 +282,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='recalcBackup'){
       let tablesTxt = byId('tables')?.value || '[]';
       let tablesArr = [];
@@ -324,7 +303,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='dmsTask'){
       const action = na(byId('action')?.value);
       const list = byId('tasks')?.value ? byId('tasks').value.split(',').map(s=>s.trim()) : [];
@@ -338,7 +316,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='refine'){
       return {
         launch:'manual',
@@ -357,7 +334,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='conform'){
       const sessions = byId('sessions')?.value ? byId('sessions').value.split(',').map(s=>s.trim()) : [];
       return {
@@ -380,7 +356,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='conformTable'){
       return {
         launch:'manual',
@@ -401,30 +376,28 @@ function buildPayload(){
         }
       };
     }
-
-	if(type==='conformEntity'){
-	  const sessions = byId('sessions')?.value ? byId('sessions').value.split(',').map(s=>s.trim()) : [];
-	  return {
-		launch:'manual',
-		conform:{
-		  sequential_jobs:[{
-			parallel_jobs:[{
-			  chain_name: na(byId('chain')?.value),
-			  check_dependency: byId('check_dependency')?.checked || false,
-			  parent_etl_job: na(byId('parent')?.value),
-			  systems:[{
-				r_src_id: String(na(byId('src')?.value)) || 0,
-				etl_entity: sessions // <-- Added Conform Sessions here
-			  }],
-			  mode: na(byId('mode')?.value),
-			  n_workers: Number(w)||40,
-			  free_threads: byId('free_threads')?.checked || false
-			}]
-		  }]
-		}
-	  };
-	}
-
+    if(type==='conformEntity'){
+      const sessions = byId('sessions')?.value ? byId('sessions').value.split(',').map(s=>s.trim()) : [];
+      return {
+        launch:'manual',
+        conform:{
+          sequential_jobs:[{
+            parallel_jobs:[{
+              chain_name: na(byId('chain')?.value),
+              check_dependency: byId('check_dependency')?.checked || false,
+              parent_etl_job: na(byId('parent')?.value),
+              systems:[{
+                r_src_id: String(na(byId('src')?.value)) || 0,
+                etl_entity: sessions
+              }],
+              mode: na(byId('mode')?.value),
+              n_workers: Number(w)||40,
+              free_threads: byId('free_threads')?.checked || false
+            }]
+          }]
+        }
+      };
+    }
     if(type==='restore'){
       return {
         launch:'manual',
@@ -447,7 +420,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='refineConform'){
       return {
         launch:'batch',
@@ -482,7 +454,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='datamart'){
       return {
         launch:'manual',
@@ -501,7 +472,6 @@ function buildPayload(){
         }
       };
     }
-
     if(type==='datamartEntity'){
       const ent = byId('entities')?.value ? byId('entities').value.split(',').map(s=>s.trim()) : [];
       return {
@@ -525,99 +495,120 @@ function buildPayload(){
         }
       };
     }
-
   }catch(e){
     return { error: e.message };
   }
 }
 
-// display & copy
-byId('genBtn').addEventListener('click', ()=>{ const p = buildPayload(); byId('output').textContent = JSON.stringify(p,null,2); });
-byId('copyBtn').addEventListener('click', ()=>{ const txt = byId('output').textContent; if(!txt){ alert('Nothing to copy'); return;} navigator.clipboard.writeText(txt).then(()=>alert('JSON copied to clipboard')); });
-byId('downloadBtn').addEventListener('click', ()=>{ const txt = byId('output').textContent || ''; const blob = new Blob([txt], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'payload.json'; a.click(); URL.revokeObjectURL(a.href); });
+// Validation function for mandatory fields before generation
+function validateFields() {
+  const type = byId('scriptType').value;
+  let valid = true;
+  let missingFields = [];
 
-// Modal & approval submission
-const modal = byId('modalBackdrop');
-byId('reqBtn').addEventListener('click', ()=>{ modal.style.display='flex'; byId('modalRequestor').value=''; byId('modalApprover').value=''; byId('modalTicket').value=''; byId('modalReason').value=''; });
-byId('closeModal').addEventListener('click', ()=> modal.style.display='none');
-byId('cancelRequest').addEventListener('click', ()=> modal.style.display='none');
-
-// GitHub API helpers
-function ghHeaders(){ return { 'Authorization': 'token '+(settings.token||''), 'Accept': 'application/vnd.github.v3+json' }; }
-async function ghGetFile(path){
-  const owner = settings.owner || PREFILL_OWNER;
-  const repo = settings.repo || PREFILL_REPO;
-  const branch = settings.branch || 'main';
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`;
-  const res = await fetch(url, { headers: ghHeaders() });
-  if(res.status===404) return null;
-  if(!res.ok) throw new Error('GitHub GET failed: '+(await res.text()));
-  const j = await res.json();
-  return j; // contains content (base64), sha, etc
-}
-async function ghPutFile(path, contentBase64, message, sha=null){
-  const owner = settings.owner || PREFILL_OWNER;
-  const repo = settings.repo || PREFILL_REPO;
-  const url = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeURIComponent(path)}`;
-  const body = { message, content: contentBase64, branch: settings.branch || 'main' };
-  if(sha) body.sha = sha;
-  const res = await fetch(url, { method:'PUT', headers: ghHeaders(), body: JSON.stringify(body) });
-  if(!res.ok) throw new Error('GitHub PUT failed: '+(await res.text()));
-  return await res.json();
-}
-
-// load master approvals from repo into app (shared state)
-async function loadApprovalsFromRepo(){
-  try{
-    const path = (settings.dir || PREFILL_DIR).replace(/\/+$/,'') + '/' + MASTER_FILENAME;
-    const file = await ghGetFile(path);
-    if(!file){ // create empty master file
-      approvals = [];
-      await saveApprovalsToRepo(approvals, 'Create master approvals file');
-      renderTable();
-      return;
+  function checkField(id, required = false, isCheckbox = false) {
+    const field = byId(id);
+    if (!field) return true;
+    if (required) {
+      if (isCheckbox) {
+        if (!field.checked) return false;
+      } else {
+        if(field.value === '' || field.value === null || field.value === undefined) return false;
+      }
     }
-    const raw = atob(file.content.replace(/\n/g,''));
-    approvals = JSON.parse(raw || '[]');
-    saveLocal(); renderTable();
-  }catch(err){
-    console.warn('Could not load approvals from repo, falling back to localStorage. Error:', err.message);
-    // fallback to local stored copy if exists
-    const local = localStorage.getItem(STORAGE_KEY);
-    approvals = local ? JSON.parse(local) : [];
-    renderTable();
+    return true;
   }
+
+  // Validate per scriptType - check required fields only
+  if(type==='recalc'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('table', true)) missingFields.push('Table Name');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='recalcBackup'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('tables', true)) missingFields.push('Tables with backup_load_id');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='dmsTask'){
+    if(!checkField('action', true)) missingFields.push('Action (start/stop)');
+    if(!checkField('tasks', true)) missingFields.push('Task Names');
+  } else if(type==='refine'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='conform'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='restore'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('tasks', true)) missingFields.push('DMS Task(s)');
+    if(!checkField('step', true)) missingFields.push('Step (1 or 2)');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='conformTable'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='conformEntity'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='refineConform'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('src', true)) missingFields.push('Source ID');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='datamart'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  } else if(type==='datamartEntity'){
+    if(!checkField('chain', true)) missingFields.push('Chain Name');
+    if(!checkField('mode', true)) missingFields.push('Mode');
+    if(!checkField('workers', true)) missingFields.push('Workers');
+  }
+
+  if(missingFields.length > 0) {
+    alert('Please fill all mandatory fields:\n- ' + missingFields.join('\n- '));
+    valid = false;
+  }
+
+  return valid;
 }
 
-// save approvals to repo MASTER file (overwrites)
-async function saveApprovalsToRepo(arr, message){
-  if(!settings.token){ throw new Error('No GitHub token in Settings'); }
-  const path = (settings.dir || PREFILL_DIR).replace(/\/+$/,'') + '/' + MASTER_FILENAME;
-  // get sha if exists
-  let sha = null;
-  try{ const existing = await ghGetFile(path); if(existing) sha = existing.sha; }catch(e){ /*ignore*/ }
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(arr, null, 2))));
-  await ghPutFile(path, content, message || 'Update approvals master', sha);
-}
+byId('genBtn').addEventListener('click', ()=>{
+  if(!validateFields()) return;  // Prevent generation if validation fails
+  const p = buildPayload();
+  byId('output').textContent = JSON.stringify(p,null,2);
+});
 
-// Manual export button not shown in UI; auto-run on load and provide a button via console if needed
-// GitHub file PUT wrapper reused above
+byId('copyBtn').addEventListener('click', ()=>{
+  const txt = byId('output').textContent;
+  if(!txt || txt.trim() === ''){ 
+    alert('Nothing to copy'); 
+    return;
+  }
+  navigator.clipboard.writeText(txt).then(()=>alert('JSON copied to clipboard'));
+});
 
-// Load on start: try to load master from repo, else fallback to local
-(async function start(){
-  // load settings from localStorage if present
-  const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); if(s) settings = s;
-  // Try to load approvals from repo master file (shared state)
-  await loadApprovalsFromRepo();
-  // run auto export if due
-  await autoExportRunner();
-  // attach filters and events
-  byId('searchInput').addEventListener('input', ()=>{ currentPage=1; renderTable(); });
-  byId('filterDate').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
-  byId('statusFilter').addEventListener('change', ()=>{ currentPage=1; renderTable(); });
-  byId('workers_global').addEventListener('change', ()=>{ if(byId('workers')) byId('workers').value = byId('workers_global').value; });
-})();
-
+byId('downloadBtn').addEventListener('click', ()=>{
+  const txt = byId('output').textContent || '';
+  const blob = new Blob([txt], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'payload.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
 </script>
 </body>
 </html>
