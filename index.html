@@ -93,24 +93,10 @@
         </div>
       </div>
     </div>
-	  
+
     <div style="height:12px"></div>
   </div>
-<script>
-  async function askAI() {
-    const question = document.getElementById("ai-question").value;
-    const responseDiv = document.getElementById("ai-response");
 
-    const res = await fetch("http://localhost:5000/ask", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question })
-    });
-
-    const data = await res.json();
-    responseDiv.innerText = data.answer;
-  }
-</script>
 <script>
 // Prefilled repo path to use
 const PREFILL_OWNER = 'fareed-007';
@@ -121,13 +107,12 @@ const STORAGE_KEY='dia_approvals_shared_v1';
 const SETTINGS_KEY='dia_approvals_shared_settings_v1';
 const RESET_KEY='dia_approvals_last_reset_v1';
 const RESET_DAYS=90;
-const res = await fetch("https://json-ai-chatbot.up.railway.app/ask";	
 
 const byId=id=>document.getElementById(id);
 let approvals = []; // will be loaded from repo master file if available
 let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') || {};
 let currentPage=1; const pageSize=8;
-	
+
 // Initialize settings with prefill if empty
 (function initSettings(){
   if(!settings.owner) settings.owner = PREFILL_OWNER;
@@ -552,7 +537,7 @@ async function loadApprovalsFromRepo(){
     renderTable();
   }
 }
-	
+
 // save approvals to repo MASTER file (overwrites)
 async function saveApprovalsToRepo(arr, message){
   if(!settings.token){ throw new Error('No GitHub token in Settings'); }
