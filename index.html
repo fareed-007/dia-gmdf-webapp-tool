@@ -141,6 +141,8 @@ function addField(label, id, multi=false, opts) {
   } else if (opts && opts.type === 'checkbox') {
     field = document.createElement('input');
     field.type = 'checkbox';
+    field.checked = opts.defaultChecked || false;   // ✅ default value
+    if (opts.required) field.required = true;       // ✅ make mandatory
   } else {
     field = document.createElement('input');
     field.type = (opts && opts.inputType) ? opts.inputType : 'text';
@@ -276,7 +278,7 @@ function buildPayload(){
               systems:[{ r_src_id: String(na(byId('src')?.value)) || 0, tables:[{ table_name: na(byId('table')?.value) }] }],
               mode: na(byId('mode')?.value),
               n_workers: Number(w)||40,
-              free_threads: byId('free_threads')?.checked || false        // ✅ no "|| true"
+              free_threads: byId('free_threads')?.checked        // ✅ no "|| true"
             }]
           }]
         }
