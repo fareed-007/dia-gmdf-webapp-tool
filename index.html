@@ -4,7 +4,6 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>DIA GMDF JSON Builder & Approval Tracker</title>
-https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js
 <style>
   :root{--bg:#f7fbff;--card:#ffffff;--muted:#475569;--accent:#0ea5e9;--accent-2:#60a5fa;--border:#e6eef8;--ok:#16a34a;--danger:#ef4444;}
   body{font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);margin:0;padding:22px;color:#0f172a;}
@@ -94,15 +93,7 @@ https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js
         </div>
       </div>
     </div>
-    <div id="ai-chatbox">
-	  <h3>AI Chat Assistant</h3>
-	  <input type="text" id="ai-question" placeholder="Ask something about the data..." />
-	  <button onclick="askAI()">Ask</button>
-	  <div id="ai-response" style="margin-top: 10px; background: #f0f0f0; padding: 10px;"></div>
-	</div>
-	<input type="text" id="question" placeholder="Ask something..." />
-<button onclick="askAI(document.getElementById('question').value)">Ask AI</button>
-<div id="response"></div>
+	  
     <div style="height:12px"></div>
   </div>
 <script>
@@ -136,26 +127,6 @@ const byId=id=>document.getElementById(id);
 let approvals = []; // will be loaded from repo master file if available
 let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}') || {};
 let currentPage=1; const pageSize=8;
-
-// Function to ask AI a question
-async function askAI(question) {
-  try {
-    const res = await fetch("https://json-ai-chatbot.up.railway.app/ask", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ question })
-    });
-
-    const data = await res.json();
-    console.log("AI Response:", data.answer);
-    // You can display this in your UI
-    document.getElementById("response").innerText = data.answer;
-  } catch (error) {
-    console.error("Error contacting AI:", error);
-  }
-}
 	
 // Initialize settings with prefill if empty
 (function initSettings(){
