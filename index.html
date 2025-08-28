@@ -276,7 +276,7 @@ function buildPayload(){
               systems:[{ r_src_id: String(na(byId('src')?.value)) || 0, tables:[{ table_name: na(byId('table')?.value) }] }],
               mode: na(byId('mode')?.value),
               n_workers: Number(w)||40,
-              free_threads: byId('free_threads')?.checked            // ✅ no "|| true"
+              free_threads: byId('free_threads')?.checked || false        // ✅ no "|| true"
             }]
           }]
         }
