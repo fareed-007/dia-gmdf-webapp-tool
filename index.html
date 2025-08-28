@@ -123,8 +123,57 @@ let currentPage=1; const pageSize=8;
 })();
 
 // UI helpers
-function addField(label,id,multi=false, opts){ const container=byId('dynamicFields'); const wrap=document.createElement('div'); wrap.style.marginBottom='8px'; const lab=document.createElement('label'); lab.textContent=label + (opts && opts.required? ' ':''); if(opts && opts.required){ const star=document.createElement('span'); star.className='required'; star.textContent='*'; lab.appendChild(star); } lab.htmlFor=id; wrap.appendChild(lab); let field; if(multi){ field=document.createElement('textarea'); } else if(opts && opts.type==='select'){ field=document.createElement('select'); opts.choices.forEach(ch=>{ const o=document.createElement('option'); o.value=ch; o.textContent=ch; field.appendChild(o); }); } else { field=document.createElement('input'); field.type=(opts && opts.inputType)?opts.inputType:'text'; } field.id=id; wrap.appendChild(field); container.appendChild(wrap); if(opts && opts.info){ const info=document.createElement('span'); info.className='info'; info.textContent=' ℹ️'; info.title=opts.info; lab.appendChild(info); } return field; }
+function addField(label, id, multi=false, opts) {
+  const container = byId('dynamicFields');
+  const wrap = document.createElement('div');
+  wrap.style.marginBottom = '8px';
 
+  const lab = document.createElement('label');
+  lab.textContent = label + (opts && opts.required ? ' ' : '');
+  if (opts && opts.required) {
+    const star = document.createElement('span');
+    star.className = 'required';
+    star.textContent = '*';
+    lab.appendChild(star);
+  }
+  lab.htmlFor = id;
+  wrap.appendChild(lab);
+
+  let field;
+  if (multi) {
+    field = document.createElement('textarea');
+  } else if (opts && opts.type === 'select') {
+    field = document.createElement('select');
+    opts.choices.forEach(ch => {
+      const o = document.createElement('option');
+      o.value = ch;
+      o.textContent = ch;
+      field.appendChild(o);
+    });
+  } else if (opts && opts.type === 'checkbox') {
+    field = document.createElement('input');
+    field.type = 'checkbox';
+  } else {
+    field = document.createElement('input');
+    field.type = (opts && opts.inputType) ? opts.inputType : 'text';
+  }
+
+  field.id = id;
+  wrap.appendChild(field);
+  container.appendChild(wrap);
+
+  if (opts && opts.info) {
+    const info = document.createElement('span');
+    info.className = 'info';
+    info.textContent = ' ℹ️';
+    info.title = opts.info;
+    lab.appendChild(info);
+  }
+
+  return field;
+}
+
+//Render Function
 function renderFields(){
   const type=byId('scriptType').value;
   const c=byId('dynamicFields');
@@ -138,9 +187,11 @@ function renderFields(){
   } else if(type==='recalc'){
     addField('Chain Name','chain',false,{required:true});
     addField('Source ID','src',false,{required:true,inputType:'number'});
-    addField('Table Name','table',false);
+    addField('Table Name','table',false,{required:true});
     addField('Mode','mode',false,{type:'select',choices:modeChoices,required:true});
     addField('Workers','workers',false,{required:true,inputType:'number'});
+	addField('Check Dependency','check_dependency',false,{type:'checkbox'});
+    addField('Free Threads','free_threads',false,{type:'checkbox'});  
 
   } else if(type==='recalcBackup'){
     addField('Chain Name','chain',false,{required:true});
@@ -240,12 +291,12 @@ function buildPayload(){
           sequential_jobs:[{
             parallel_jobs:[{
               chain_name: na(byId('chain')?.value),
-              check_dependency: byId('check_dependency')?.checked || true,
+              check_dependency: byId('check_dependency')?.checked,   // ✅ no "|| true"
               parent_etl_job:'edb_mq_dia_golden_copy',
               systems:[{ r_src_id: String(na(byId('src')?.value)) || 0, tables:[{ table_name: na(byId('table')?.value) }] }],
               mode: na(byId('mode')?.value),
               n_workers: Number(w)||40,
-              free_threads: byId('free_threads')?.checked || true
+              free_threads: byId('free_threads')?.checked            // ✅ no "|| true"
             }]
           }]
         }
