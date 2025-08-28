@@ -147,9 +147,11 @@ function addField(label, id, multi=false, opts) {
     field = document.createElement('input');
     field.type = (opts && opts.inputType) ? opts.inputType : 'text';
   }
+
   field.id = id;
   wrap.appendChild(field);
   container.appendChild(wrap);
+
   if (opts && opts.info) {
     const info = document.createElement('span');
     info.className = 'info';
